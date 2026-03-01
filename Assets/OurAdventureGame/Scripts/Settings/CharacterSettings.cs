@@ -46,7 +46,7 @@ public class CharacterSettings : MonoBehaviour
     private void Start()
     {
         Debug.Log(selestch);
-        selestch = PlayerPrefs.GetInt("CharacterSelected"); // получаем значени по ключи из PlayerPrefs
+        selestch = PlayerPrefs.GetInt("CharacterSelected"); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ PlayerPrefs
         _virtualCameraComponent = _virtual_camera.GetComponent<CinemachineVirtualCamera>();
 
         _goblinsSrangAI = FindObjectsOfType<enemyAI>();
