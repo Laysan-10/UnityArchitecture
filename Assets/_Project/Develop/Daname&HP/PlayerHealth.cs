@@ -12,7 +12,7 @@ public class PlayerHealth : Heath
     {
         if(isDead() == true)
         {
-            //вызов анимации смерти
+            //вызов анимации смерти и UI перезапуска игры
         }
     }
     void SlideBar()
@@ -20,8 +20,13 @@ public class PlayerHealth : Heath
         //количество здоровья соразмерно уменьшается
     }
     
-    void LowHealth()
+    void LowHealthEffect()
     {
+    if(_current <= _max*0.3)
+    {
+        
+    }
         //последствия малого количесва здоровья(понижается сокрость бега и высота прыжка)
     }
+
 }
