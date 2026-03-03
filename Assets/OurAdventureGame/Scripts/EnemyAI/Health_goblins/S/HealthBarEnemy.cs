@@ -59,7 +59,6 @@ public class HealthBarEnemy : MonoBehaviour
 
         DOTween.Kill(transform);
 
-        // Запускаем корутину для затухания врага
         StartCoroutine(FadeOut());
     }
 

@@ -37,7 +37,6 @@ public class AttackController : MonoBehaviour
         _animator.SetTrigger(ATTACK2);
 
         StartCoroutine(ReloadSlider());
-        Debug.Log("Подождите " + _delayTime + " секунд");
         yield return new WaitForSeconds(_delayTime);
 
         isCoroutineRunning = false;

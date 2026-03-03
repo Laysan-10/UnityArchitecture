@@ -9,13 +9,13 @@ public class enemyAI : MonoBehaviour
     private NavMeshAgent agent;
     public Animator animator;
     public float LookRadius;
-    public float attackCooldown = 4f; //¬рем€ между атаками
+    public float attackCooldown = 4f; 
     private float lastAttackTime;
 
     private void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        lastAttackTime = -attackCooldown;//”станавливаем врем€ последней атаки так, чтобы можно было атаковать сразу при старте
+        lastAttackTime = -attackCooldown;
     }
 
     private void Update()
@@ -34,7 +34,7 @@ public class enemyAI : MonoBehaviour
                 if (Time.time - lastAttackTime >= attackCooldown)
                 {
                     animator.SetTrigger("IsAttack");
-                    lastAttackTime = Time.time; //ќбновл€ем врем€ последней атаки
+                    lastAttackTime = Time.time;
                     LookTarget();
                 }
             }

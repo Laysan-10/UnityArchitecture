@@ -39,22 +39,22 @@ public class HealthBarEnemy_A : MonoBehaviour
 
     private void Start()
     {
-        pers = PlayerPrefs.GetInt("CharacterSelected"); // получаем значени по ключи из PlayerPrefs
+        pers = PlayerPrefs.GetInt("CharacterSelected"); 
         HealthEnemy_A = maxHealth_A;
-        Debug.Log(HealthEnemy_A + " -- здоровья");
+        Debug.Log(HealthEnemy_A + "");
     }
 
     public void TakeDamageByEnemy_A(int damageValue)
     {
         HealthEnemy_A -= damageValue;
-        Debug.Log(HealthEnemy_A + " -- здоровья");
+        Debug.Log(HealthEnemy_A + "");
 
     }
 
     public void DieEnemy_A()
     {
 
-        Debug.Log("Враг умер");
+        Debug.Log("пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ");
         _animator.SetTrigger("death");
         GetComponent<Collider>().enabled = false;
         GetComponent<dark_magic_ball>().enabled = false;
@@ -70,7 +70,6 @@ public class HealthBarEnemy_A : MonoBehaviour
         }
         DOTween.Kill(transform);
 
-        // Запускаем корутину для затухания врага
         StartCoroutine(FadeOut());
     }
 

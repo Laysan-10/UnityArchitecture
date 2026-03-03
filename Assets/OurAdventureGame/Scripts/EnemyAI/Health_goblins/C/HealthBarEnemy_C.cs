@@ -37,20 +37,20 @@ public class HealthBarEnemy_C : MonoBehaviour
     private void Start()
     {
         HealthEnemy_C = maxHealth_C;
-        Debug.Log(HealthEnemy_C + " -- здоровья");
+        Debug.Log(HealthEnemy_C + "");
     }
 
     public void TakeDamageByEnemy_C(int damageValue)
     {
         HealthEnemy_C -= damageValue;
-        Debug.Log(HealthEnemy_C + " -- здоровья");
+        Debug.Log(HealthEnemy_C + "");
 
     }
 
     public void DieEnemy_C()
     {
 
-        Debug.Log("Враг умер");
+        Debug.Log("пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ");
         _animator.SetTrigger("death");
         GetComponent<Collider>().enabled = false;
         GetComponent<UnityEngine.AI.NavMeshAgent>().enabled = false;
@@ -59,7 +59,6 @@ public class HealthBarEnemy_C : MonoBehaviour
 
         DOTween.Kill(transform);
 
-        // Запускаем корутину для затухания врага
         StartCoroutine(FadeOut());
     }
 

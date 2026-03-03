@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
@@ -7,115 +8,191 @@ public class MovementKnight : MonoBehaviour
     [Header("References")]
     [SerializeField] private Animator _animator;
     [SerializeField] private Rigidbody _rigidbody;
+    [SerializeField] private Transform _cameraTransform; // Ссылка на камеру
 
-    [Header("Movement Parameters")]
-    [SerializeField] private float _speed = 8f;
-    [SerializeField] private float jumpForce = 8f;
-    [SerializeField] private float fallMultiplier = 3.0f;
-    [SerializeField] private float lowJumpMultiplier = 2.5f;
+    [Header("Movement Settings")]
+    [SerializeField] private float _walkSpeed = 5f;
+    [SerializeField] private float _runSpeed = 10f;
+    [SerializeField] private float _rotationSpeed = 10f;
+    [SerializeField] private float _jumpForce = 7f;
 
-    [Header("Animation States")]
-    const string RUN = "isRun";
-    const string JUMP = "isJump";
-    const string ATTACK1 = "attack1";
-    //const string ATTACK2 = "attack2";
+    [Header("Physics Settings")]
+    [SerializeField] private float _groundCheckRadius = 0.2f;
+    [SerializeField] private LayerMask _groundLayer;
+    [SerializeField] private Transform _groundCheckPos;
 
-    [Header("State Flags")]
-    private bool isRun;
-    private bool isJump;
-    private bool isFacingRight = true;
+    // Animation Hashes
+    private static readonly int SpeedHash = Animator.StringToHash("Speed");
+    private static readonly int IsJumpHash = Animator.StringToHash("isJump");
+    private static readonly int IsGroundedHash = Animator.StringToHash("isGrounded");
+    private static readonly int Attack1Hash = Animator.StringToHash("attack1");
+    private static readonly int BackStepHash = Animator.StringToHash("BackStep"); // Trigger for Shift dodge if needed
 
-    [Header("Rotation Parameters")]
-    [SerializeField] private float _rotationBack = 90f;
-    [SerializeField] private float _rotationDown = -90f;
+    // Input Actions
+    private InputAction _moveAction;
+    private InputAction _jumpAction;
+    private InputAction _sprintAction;
+    private InputAction _attackAction;
 
-    private void Start()
+    // State
+    private Vector2 _inputVector;
+    private bool _isSprinting;
+    private bool _isGrounded;
+
+    private void Awake()
     {
-        _animator = GetComponent<Animator>();
         _rigidbody = GetComponent<Rigidbody>();
+        _animator = GetComponent<Animator>();
+
+        if (_cameraTransform == null && Camera.main != null)
+            _cameraTransform = Camera.main.transform;
+
+        // Настройка инпутов
+        _moveAction = new InputAction("Move", binding: "<Gamepad>/leftStick");
+        _moveAction.AddCompositeBinding("Dpad")
+            .With("Up", "<Keyboard>/w")
+            .With("Up", "<Keyboard>/upArrow")
+            .With("Down", "<Keyboard>/s")
+            .With("Down", "<Keyboard>/downArrow")
+            .With("Left", "<Keyboard>/a")
+            .With("Left", "<Keyboard>/leftArrow")
+            .With("Right", "<Keyboard>/d")
+            .With("Right", "<Keyboard>/rightArrow");
+
+        _jumpAction = new InputAction("Jump", binding: "<Keyboard>/space");
+        _jumpAction.AddBinding("<Gamepad>/buttonSouth");
+
+        _sprintAction = new InputAction("Sprint", binding: "<Keyboard>/leftShift");
+        _sprintAction.AddBinding("<Gamepad>/leftTrigger");
+        
+        _attackAction = new InputAction("Attack", binding: "<Keyboard>/z");
+        _attackAction.AddBinding("<Mouse>/leftButton");
+    }
+
+    private void OnEnable()
+    {
+        _moveAction.Enable();
+        _jumpAction.Enable();
+        _sprintAction.Enable();
+        _attackAction.Enable();
+        
+        _jumpAction.performed += OnJump;
+        _attackAction.performed += OnAttack;
+    }
+
+    private void OnDisable()
+    {
+        _moveAction.Disable();
+        _jumpAction.Disable();
+        _sprintAction.Disable();
+        _attackAction.Disable();
+        
+        _jumpAction.performed -= OnJump;
+        _attackAction.performed -= OnAttack;
+    }
+
+    private void Update()
+    {
+        // Чтение инпута каждый кадр
+        _inputVector = _moveAction.ReadValue<Vector2>();
+        _isSprinting = _sprintAction.IsPressed();
+        
+        UpdateAnimation();
     }
 
     private void FixedUpdate()
     {
+        CheckGround();
         Move();
-
+        ApplyGravityMultiplier();
     }
 
-    protected void Move()
+    private void Move()
     {
-        float horizontalInput = Input.GetAxis("Horizontal");
-        Vector3 movement = new Vector3(horizontalInput, 0, 0);
-        movement.Normalize();
-        _rigidbody.AddForce(movement * _speed, ForceMode.VelocityChange);
+        // 1. Рассчитываем направление относительно камеры
+        Vector3 cameraForward = _cameraTransform.forward;
+        Vector3 cameraRight = _cameraTransform.right;
 
-        Vector3 velocity = new Vector3(movement.x * _speed, _rigidbody.linearVelocity.y, 0);
+        // Обнуляем Y, чтобы не идти в землю
+        cameraForward.y = 0;
+        cameraRight.y = 0;
+        cameraForward.Normalize();
+        cameraRight.Normalize();
+
+        Vector3 moveDir = (cameraForward * _inputVector.y + cameraRight * _inputVector.x).normalized;
+
+        // 2. Определяем скорость
+        float targetSpeed = _isSprinting ? _runSpeed : _walkSpeed;
+        if (_inputVector.magnitude < 0.1f) targetSpeed = 0f;
+
+        // 3. Применяем движение к Rigidbody (сохраняя вертикальную скорость)
+        Vector3 targetVelocity = moveDir * targetSpeed;
+        
+        // Используем linearVelocity (Unity 6 / 2023.3+)
+        Vector3 velocity = _rigidbody.linearVelocity;
+        velocity.x = targetVelocity.x;
+        velocity.z = targetVelocity.z;
         _rigidbody.linearVelocity = velocity;
-        isRun = Mathf.Abs(horizontalInput) > 0;
 
-        if (isRun)
+        // 4. Вращение персонажа в сторону движения
+        if (moveDir != Vector3.zero)
         {
-            if (horizontalInput > 0 && !isFacingRight)
-            {
-                RotateCharacter(_rotationDown);
-                isFacingRight = true;
-            }
-            else if (horizontalInput < 0 && isFacingRight)
-            {
-                RotateCharacter(_rotationBack);
-                isFacingRight = false;
-            }
+            Quaternion targetRotation = Quaternion.LookRotation(moveDir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, _rotationSpeed * Time.fixedDeltaTime);
         }
+    }
 
-        _animator.SetBool(RUN, isRun);
-
-        if (Input.GetKeyDown(KeyCode.Space) && isJump)
+    private void OnJump(InputAction.CallbackContext context)
+    {
+        if (_isGrounded)
         {
-            _rigidbody.linearVelocity = new Vector3(velocity.x, CalculateJumpForce(), velocity.z);
-            isJump = false;
-            _animator.SetBool(JUMP, true);
+            // Формула прыжка: sqrt(2 * gravity * height)
+            float jumpVel = Mathf.Sqrt(2 * Mathf.Abs(Physics.gravity.y) * _jumpForce);
+            Vector3 vel = _rigidbody.linearVelocity;
+            vel.y = jumpVel;
+            _rigidbody.linearVelocity = vel;
+            
+            _animator.SetTrigger(IsJumpHash);
         }
+    }
 
+    private void OnAttack(InputAction.CallbackContext context)
+    {
+        _animator.SetTrigger(Attack1Hash);
+    }
+
+    private void ApplyGravityMultiplier()
+    {
+        // Улучшенная физика прыжка (быстрое падение)
         if (_rigidbody.linearVelocity.y < 0)
         {
-            _rigidbody.linearVelocity += Vector3.up * Physics.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
+            _rigidbody.linearVelocity += Vector3.up * Physics.gravity.y * (2.0f - 1) * Time.fixedDeltaTime;
         }
-        else if (_rigidbody.linearVelocity.y > 0 && !Input.GetKey(KeyCode.Space))
-        {
-            _rigidbody.linearVelocity += Vector3.up * Physics.gravity.y * (lowJumpMultiplier - 1) * Time.deltaTime;
-        }
-
-        if (Input.GetKeyDown(KeyCode.LeftShift))
-        {
-            _animator.SetTrigger("BackStep");
-        }
-
-        if (Input.GetKeyDown(KeyCode.Z))
-        {
-            _animator.SetTrigger(ATTACK1);
-        }
-
-        //if (Input.GetKeyDown(KeyCode.X))
-        //{
-        //    _animator.SetTrigger(ATTACK2);
-        //}
     }
 
-    void RotateCharacter(float angle)
+    private void CheckGround()
     {
-        transform.rotation = Quaternion.Euler(0f, angle, 0f);
+        // Используем сферу у ног или позицию трансформа
+        Vector3 origin = _groundCheckPos ? _groundCheckPos.position : transform.position + Vector3.up * 0.1f;
+        _isGrounded = Physics.CheckSphere(origin, _groundCheckRadius, _groundLayer, QueryTriggerInteraction.Ignore);
+        
+        _animator.SetBool(IsGroundedHash, _isGrounded);
     }
-
-    private float CalculateJumpForce()
+    
+    private void UpdateAnimation()
     {
-        return Mathf.Sqrt(2 * jumpForce * Mathf.Abs(Physics.gravity.y));
+        // Для Blend Tree (Idle -> Walk -> Run)
+        float currentSpeed = new Vector2(_rigidbody.linearVelocity.x, _rigidbody.linearVelocity.z).magnitude;
+        _animator.SetFloat(SpeedHash, currentSpeed, 0.1f, Time.deltaTime);
     }
-
-    private void OnCollisionEnter(Collision collision)
+    
+    // Визуализация сферы проверки земли в редакторе
+    private void OnDrawGizmosSelected()
     {
-        if (collision.gameObject.tag == "ground")
+        if (_groundCheckPos != null)
         {
-            isJump = true;
-            _animator.SetBool("isJump", false);
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(_groundCheckPos.position, _groundCheckRadius);
         }
     }
 }

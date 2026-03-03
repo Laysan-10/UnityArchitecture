@@ -12,7 +12,7 @@ public class Health_Goblin_C_Rang : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log(HealthEnemy + " -- здоровь€");
+        Debug.Log(HealthEnemy + "");
     }
     public int HealthEnemy
     {
@@ -35,14 +35,14 @@ public class Health_Goblin_C_Rang : MonoBehaviour
     public void TakeDamageByEnemy(int damageValue)
     {
         HealthEnemy -= damageValue;
-        Debug.Log(HealthEnemy + " -- здоровь€");
+        Debug.Log(HealthEnemy + "");
 
     }
 
     public void DieEnemy()
     {
 
-        Debug.Log("¬раг умер");
+        Debug.Log("Enemy died");
         _animator.SetTrigger("death");
         GetComponent<Collider>().enabled = false;
         //GetComponent<UnityEngine.AI.NavMeshAgent>().enabled = false;
@@ -54,10 +54,8 @@ public class Health_Goblin_C_Rang : MonoBehaviour
     {
         transform.DOScale(Vector3.zero, 2f);
 
-        // ∆дем, пока произойдет затухание
         yield return new WaitForSeconds(2f);
 
-        // ”ничтожаем объект после затухани€
         Destroy(gameObject);
     }
 }

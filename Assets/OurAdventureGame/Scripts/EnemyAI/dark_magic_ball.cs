@@ -12,15 +12,15 @@ public class dark_magic_ball : MonoBehaviour
     [SerializeField] Animator _animator;
     private string attack = "IsAttack";
 
-    public Transform hitPosition; // Ссылка на объект HitPosition
-    [SerializeField] Transform posMove; // Ссылка на объект PosMove
+    public Transform hitPosition; // HitPosition
+    [SerializeField] Transform posMove; //  PosMove
 
     [SerializeField] private float cooldownTime = 7f;
     private bool isOnCooldown = false;
     [SerializeField] private float LookRadius;
 
     [SerializeField] private int damageAmount;
-    private bool isDamageApplied = false; // Флаг, отслеживающий, был ли урон уже нанесен в рамках текущей атаки
+    private bool isDamageApplied = false; //
 
     [SerializeField] private ParticleSystem _shieldActive;
 
@@ -38,8 +38,8 @@ public class dark_magic_ball : MonoBehaviour
     {
         if (_shieldActive.isPlaying)
         {
-            Debug.Log("Щит активирован");
-            return; // выходим из метода
+            Debug.Log("Shield is active");
+            return;
         }
 
         Debug.Log("collision");
@@ -53,20 +53,19 @@ public class dark_magic_ball : MonoBehaviour
 
     public void PlayEffect()
     {
-        // Перемещение объекта PosMove на позицию HitPosition
+        //PosMove  HitPosition
         posMove.position = hitPosition.position;
 
-        // Создание и воспроизведение эффекта
         ParticleSystem darkMagicBall = Instantiate(_dark_magic_ball, posMove.position, Quaternion.identity);
-        darkMagicBall.transform.parent = null; // Разрывает связь с родителем
+        darkMagicBall.transform.parent = null;
         darkMagicBall.Play();
-        Destroy(darkMagicBall.gameObject, 5f); // Уничтожить объект через 5 секунд 
+        Destroy(darkMagicBall.gameObject, 5f);
     }
 
     private IEnumerator MagicAttack()
     {
         isOnCooldown = true;
-        isDamageApplied = false; // Сбрасываем флаг при начале новой атаки
+        isDamageApplied = false;
         _animator.SetTrigger(attack);
         yield return new WaitForSeconds(cooldownTime);
         isOnCooldown = false;

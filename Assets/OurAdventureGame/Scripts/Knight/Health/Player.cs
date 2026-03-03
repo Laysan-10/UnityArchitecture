@@ -18,7 +18,7 @@ public class Player : MonoBehaviour, IDamageble
     [SerializeField] private DeathMenu _deathMenu;
 
 
-    public int Health // здоровье
+    public int Health
     {
         get
         {
@@ -40,7 +40,6 @@ public class Player : MonoBehaviour, IDamageble
 
     public void Die()
     {
-        Debug.Log("Рыцарь умер");
         _animator.SetTrigger("Death");
         _deathMenu.SetActivDeathMenu();
     }
@@ -71,13 +70,12 @@ public class Player : MonoBehaviour, IDamageble
     {
         _damagePanel.SetActive(true);
 
-        // Проверяем, что у нас есть компонент CanvasGroup
         if (_canvasGroup != null)
         {
-            _canvasGroup.alpha = 1f; // Устанавливаем начальное значение прозрачности
+            _canvasGroup.alpha = 1f; 
 
-            // Анимация прозрачности с использованием DOTween
-            _canvasGroup.DOFade(0f, 1.5f).OnComplete(HidePanel); // OnComplete вызывается после завершения анимации
+            
+            _canvasGroup.DOFade(0f, 1.5f).OnComplete(HidePanel); // OnComplete
         }
     }
 

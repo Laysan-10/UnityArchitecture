@@ -29,7 +29,7 @@ public class ShieldEffect : MonoBehaviour
     {
         isCoroutineRunning = true;
 
-        // Запускаю анимацию Slider'а
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Slider'пїЅ
         StartCoroutine(AnimateSlider());
 
         PlayMagicShield();
@@ -38,7 +38,6 @@ public class ShieldEffect : MonoBehaviour
             item.enabled = true;
         }
 
-        //Debug.Log("Подождите " + _delayTime + " секунд");
         yield return new WaitForSeconds(_playTime);
 
         StopMagicShield();
@@ -48,7 +47,6 @@ public class ShieldEffect : MonoBehaviour
         }
 
         yield return new WaitForSeconds(_delayTime);
-        // Сбрасываю значение Slider'а
         _shieldSlider.value = 1f;
 
         isCoroutineRunning = false;
@@ -60,18 +58,14 @@ public class ShieldEffect : MonoBehaviour
         _shieldSprite.SetActive(false);
         while (elapsedTime < (_playTime + _delayTime))
         {
-            // Интерполируем значение Slider'а от 0 до 1 в течение _delayTime секунд
             _shieldSlider.value = Mathf.Lerp(0f, 1f, elapsedTime / (_playTime + _delayTime));
 
-            // Увеличиваем прошедшее время
             elapsedTime += Time.deltaTime;
 
-            // Ждем следующий кадр
             yield return null;
         }
         _shieldSprite.SetActive(true);
 
-        // Убеждаемся, что Slider принимает конечное значение
         _shieldSlider.value = 1f;
     }
 
