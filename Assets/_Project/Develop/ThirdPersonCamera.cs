@@ -1,37 +1,179 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
+using Unity.Cinemachine;
+using UnityEngine.Serialization;
 
-public class ThirdPersonCamera : MonoBehaviour
+
+public class PlayerCameraController : MonoBehaviour
 {
-    [SerializeField] private Transform _target; // Игрок
-    [SerializeField] private float _sensitivity = 2f;
-    [SerializeField] private float _distance = 5f;
-    [SerializeField] private Vector2 _verticalLimits = new Vector2(-40, 80);
-
-    private IInputService _inputService;
-    private float _rotationX;
-    private float _rotationY;
-
-    public void Construct(IInputService inputService)
+    [Header("Camera Settings")]
+    [SerializeField] private float mouseSensitivityX = 2f;
+    [SerializeField] private float mouseSensitivityY = 2f;
+    [SerializeField] private float verticalLookLimit = 80f;
+    [SerializeField] private bool useGlobalSensitivity = true;
+    [SerializeField] private InputService inputService;
+    [SerializeField] private float yRotationAdditive;
+    
+    [Header("References")]
+    [SerializeField] private Transform orientation;
+    [SerializeField] private Camera mainCamera;
+    
+    [Header("Cinemachine")]
+    [SerializeField] private CinemachineCamera virtualCamera;
+    [SerializeField] private Transform cameraFollowTarget;
+    [SerializeField] private Transform cameraLookAtTarget;
+    
+    [Header("Auto Look Up")]
+    [SerializeField] private bool playIntroTilt = true;
+    [SerializeField] private float introDuration = 1.5f;
+    [SerializeField] private float targetXRotationAfterIntro = -5f;
+    
+    private float _xRotation = 10f;
+    private float _yRotation;
+    private bool _isIntroPlaying;
+    private float _introTimer;
+    private float _startXRotation;
+    
+    private void Awake()
     {
-        _inputService = inputService;
+        SetupOrientation();
+        SetupCameraTargets();
+        SetupMainCamera();
+        
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        
+        if (playIntroTilt)
+        {
+            _isIntroPlaying = true;
+            _introTimer = 0f;
+            _startXRotation = _xRotation;
+        }
+        
+        _yRotation = transform.eulerAngles.y;
     }
-
+    
+    private void Start()
+    {
+    }
+    
+    private void OnDestroy()
+    {
+    }
+    
+    
+    private void SetupOrientation()
+    {
+        if (!orientation)
+        {
+            GameObject orientationObj = new GameObject("Orientation");
+            orientationObj.transform.SetParent(transform);
+            orientationObj.transform.localPosition = Vector3.zero;
+            orientation = orientationObj.transform;
+        }
+    }
+    
+    private void SetupCameraTargets()
+    {
+        if (!cameraFollowTarget)
+        {
+            GameObject followObj = new GameObject("CameraFollowTarget");
+            followObj.transform.SetParent(transform);
+            followObj.transform.localPosition = Vector3.up * 1.6f;
+            cameraFollowTarget = followObj.transform;
+        }
+        
+        if (!cameraLookAtTarget)
+        {
+            GameObject lookAtObj = new GameObject("CameraLookAtTarget");
+            lookAtObj.transform.SetParent(transform);
+            lookAtObj.transform.localPosition = Vector3.up * 1.6f;
+            cameraLookAtTarget = lookAtObj.transform;
+        }
+    }
+    
+    private void SetupMainCamera()
+    {
+        if (!mainCamera)
+        {
+            GameObject camObj = GameObject.FindGameObjectWithTag("MainCamera");
+            if (camObj)
+            {
+                mainCamera = camObj.GetComponent<Camera>();
+            }
+            else
+            {
+                mainCamera = Camera.main;
+            }
+        }
+    }
+    
+    private void Update()
+    {
+        if (!inputService) return;
+        
+        float deltaTime = Mathf.Min(Time.deltaTime, 0.033f);
+        
+        HandleCameraRotation(deltaTime);
+    }
+    
     private void LateUpdate()
     {
-        if (_inputService == null || _target == null) return;
-
-        Vector2 lookInput = _inputService.LookInput;
-
-        _rotationY += lookInput.x * _sensitivity;
-        _rotationX -= lookInput.y * _sensitivity;
-        _rotationX = Mathf.Clamp(_rotationX, _verticalLimits.x, _verticalLimits.y);
-
-        Quaternion rotation = Quaternion.Euler(_rotationX, _rotationY, 0);
-        Vector3 position = rotation * new Vector3(0, 0, -_distance) + _target.position;
-
-        transform.rotation = rotation;
-        transform.position = position;
+        ApplyRotations();
     }
-
+    
+    private void HandleCameraRotation(float deltaTime)
+    {
+        Vector2 lookInput = inputService.LookInput;
+        
+        float mouseX = lookInput.x * deltaTime * mouseSensitivityX * 50f;
+        float mouseY = lookInput.y * deltaTime * mouseSensitivityY * 50f;
+        
+        mouseX = lookInput.x * deltaTime * mouseSensitivityX;
+        mouseY = lookInput.y * deltaTime * mouseSensitivityY;
+        
+        _yRotation += mouseX;
+        _xRotation -= mouseY;
+        
+        if (_isIntroPlaying)
+        {
+            _introTimer += deltaTime;
+            float timer = Mathf.Clamp01(_introTimer / introDuration);
+            _xRotation = Mathf.Lerp(_startXRotation, targetXRotationAfterIntro, timer);
+            
+            if (timer >= 1f)
+            {
+                _isIntroPlaying = false;
+            }
+        }
+        
+        _xRotation = Mathf.Clamp(_xRotation, -verticalLookLimit, verticalLookLimit);
+    }
+    
+    private void ApplyRotations()
+    {
+        if (orientation)
+        {
+            orientation.rotation = Quaternion.Euler(0, _yRotation + yRotationAdditive, 0);
+        }
+        
+        transform.rotation = Quaternion.Euler(_xRotation, _yRotation + yRotationAdditive, 0);
+        
+        if (cameraFollowTarget)
+        {
+            cameraFollowTarget.rotation = Quaternion.Euler(_xRotation, _yRotation + yRotationAdditive, 0);
+        }
+        
+        if (cameraLookAtTarget)
+        {
+            cameraLookAtTarget.rotation = Quaternion.Euler(_xRotation, _yRotation + yRotationAdditive, 0);
+        }
+        
+        if (mainCamera)
+        {
+            mainCamera.transform.localRotation = Quaternion.Euler(_xRotation, 0, 0);
+        }
+    }
+    
+    public Transform GetOrientation() => orientation;
+    public Transform GetCameraFollowTarget() => cameraFollowTarget;
 }

@@ -118,6 +118,24 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PhysicalAttack"",
+                    ""type"": ""Button"",
+                    ""id"": ""c6cf4371-bb44-446a-b4f7-7f238e510a4b"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MagicAttack"",
+                    ""type"": ""Button"",
+                    ""id"": ""90a8b9bd-513a-4742-abae-341d9f7df776"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -179,7 +197,7 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""5125e05b-3770-4837-b4d2-2b4a7aa7b469"",
-                    ""path"": ""<Mouse>/delta"",
+                    ""path"": ""<Pointer>/delta"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -197,6 +215,28 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
                     ""action"": ""Sprint"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2d15e703-fc67-44be-af01-a68682450399"",
+                    ""path"": ""<Keyboard>/z"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PhysicalAttack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c7b71767-2013-4f16-bea5-2dfd15d96306"",
+                    ""path"": ""<Keyboard>/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MagicAttack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -208,6 +248,8 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_Look = m_Player.FindAction("Look", throwIfNotFound: true);
         m_Player_Sprint = m_Player.FindAction("Sprint", throwIfNotFound: true);
+        m_Player_PhysicalAttack = m_Player.FindAction("PhysicalAttack", throwIfNotFound: true);
+        m_Player_MagicAttack = m_Player.FindAction("MagicAttack", throwIfNotFound: true);
     }
 
     ~@GameControls()
@@ -291,6 +333,8 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_Look;
     private readonly InputAction m_Player_Sprint;
+    private readonly InputAction m_Player_PhysicalAttack;
+    private readonly InputAction m_Player_MagicAttack;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -314,6 +358,14 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Sprint".
         /// </summary>
         public InputAction @Sprint => m_Wrapper.m_Player_Sprint;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/PhysicalAttack".
+        /// </summary>
+        public InputAction @PhysicalAttack => m_Wrapper.m_Player_PhysicalAttack;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/MagicAttack".
+        /// </summary>
+        public InputAction @MagicAttack => m_Wrapper.m_Player_MagicAttack;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -349,6 +401,12 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
             @Sprint.started += instance.OnSprint;
             @Sprint.performed += instance.OnSprint;
             @Sprint.canceled += instance.OnSprint;
+            @PhysicalAttack.started += instance.OnPhysicalAttack;
+            @PhysicalAttack.performed += instance.OnPhysicalAttack;
+            @PhysicalAttack.canceled += instance.OnPhysicalAttack;
+            @MagicAttack.started += instance.OnMagicAttack;
+            @MagicAttack.performed += instance.OnMagicAttack;
+            @MagicAttack.canceled += instance.OnMagicAttack;
         }
 
         /// <summary>
@@ -369,6 +427,12 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
             @Sprint.started -= instance.OnSprint;
             @Sprint.performed -= instance.OnSprint;
             @Sprint.canceled -= instance.OnSprint;
+            @PhysicalAttack.started -= instance.OnPhysicalAttack;
+            @PhysicalAttack.performed -= instance.OnPhysicalAttack;
+            @PhysicalAttack.canceled -= instance.OnPhysicalAttack;
+            @MagicAttack.started -= instance.OnMagicAttack;
+            @MagicAttack.performed -= instance.OnMagicAttack;
+            @MagicAttack.canceled -= instance.OnMagicAttack;
         }
 
         /// <summary>
@@ -430,5 +494,19 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSprint(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "PhysicalAttack" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPhysicalAttack(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "MagicAttack" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnMagicAttack(InputAction.CallbackContext context);
     }
 }

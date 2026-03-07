@@ -32,6 +32,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "PhysicalAttack",
+                    "type": "Button",
+                    "id": "c6cf4371-bb44-446a-b4f7-7f238e510a4b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "MagicAttack",
+                    "type": "Button",
+                    "id": "90a8b9bd-513a-4742-abae-341d9f7df776",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -93,7 +111,7 @@
                 {
                     "name": "",
                     "id": "5125e05b-3770-4837-b4d2-2b4a7aa7b469",
-                    "path": "<Mouse>/delta",
+                    "path": "<Pointer>/delta",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -109,6 +127,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Sprint",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2d15e703-fc67-44be-af01-a68682450399",
+                    "path": "<Keyboard>/z",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PhysicalAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c7b71767-2013-4f16-bea5-2dfd15d96306",
+                    "path": "<Keyboard>/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MagicAttack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
