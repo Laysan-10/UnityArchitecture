@@ -26,7 +26,7 @@ public class ThirdPersonCameraController : MonoBehaviour
         Cursor.visible = false;
     }
 
-    // Внедрение зависимостей (DIP)
+    // Внедрение зависимостей
     public void Construct(IInputService inputService)
     {
         _inputService = inputService;

@@ -7,7 +7,6 @@ public class PlayerAnimationController : MonoBehaviour
     private PlayerMovement _movement;
     private PlayerCombat _combat;
 
-    // Кэшируем хэши для производительности
     private static readonly int SpeedHash = Animator.StringToHash("Speed");
     private static readonly int PhysicalAttackHash = Animator.StringToHash("PhysicalAttack");
     private static readonly int MagicAttackHash = Animator.StringToHash("MagicAttack");

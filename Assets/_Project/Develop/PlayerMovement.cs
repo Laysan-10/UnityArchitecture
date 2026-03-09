@@ -19,7 +19,7 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         _controller = GetComponent<CharacterController>();
-        // Кэшируем трансформ главной камеры
+
         if (Camera.main != null) _mainCameraTransform = Camera.main.transform;
     }
 

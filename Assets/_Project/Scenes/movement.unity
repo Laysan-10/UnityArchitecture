@@ -1292,8 +1292,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ThirdPersonCameraController
   zoomSpeed: 2
   zoomLerpSpeed: 10
-  minDistance: 2
-  maxDistance: 30
+  minDistance: 10
+  maxDistance: 35
 --- !u!114 &1731933388
 MonoBehaviour:
   m_ObjectHideFlags: 0

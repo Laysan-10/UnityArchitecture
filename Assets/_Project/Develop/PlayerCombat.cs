@@ -20,21 +20,21 @@ public class PlayerCombat : MonoBehaviour
 
     private void HandlePhysicalAttack()
     {
-        // Здесь позже будет логика поиска врагов в радиусе и нанесение урона
+        // Здесь позже сделаем логику поиска врагов в радиусе и нанесение урона
         Debug.Log("Логика: Выполнена физическая атака");
         OnAttackPhysFired?.Invoke(); // Говорим аниматору проиграть анимацию
     }
 
     private void HandleMagicAttack()
     {
-        // Здесь позже будет логика спавна фаербола
+        // Здесь позже сделаю логику спавна фаербола
         Debug.Log("Логика: Выполнена магическая атака");
         OnAttackMagFired?.Invoke();
     }
 
     private void OnDestroy()
     {
-        // Отписываемся, чтобы избежать утечек памяти
+        // Отписываемся от событий, чтобы избежать утечек памяти
         if (_inputService != null)
         {
             _inputService.OnPhysicalAttack -= HandlePhysicalAttack;
