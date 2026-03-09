@@ -136,6 +136,15 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MouseZoom"",
+                    ""type"": ""Value"",
+                    ""id"": ""5d77c0a8-7769-4943-8338-e3f9b35ef914"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -237,6 +246,17 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
                     ""action"": ""Magic_attack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""de9c9124-24ba-4801-a14a-8a9f81da6244"",
+                    ""path"": ""<Mouse>/scroll"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MouseZoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -250,6 +270,7 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
         m_Player_Sprint = m_Player.FindAction("Sprint", throwIfNotFound: true);
         m_Player_Physical_attack = m_Player.FindAction("Physical_attack", throwIfNotFound: true);
         m_Player_Magic_attack = m_Player.FindAction("Magic_attack", throwIfNotFound: true);
+        m_Player_MouseZoom = m_Player.FindAction("MouseZoom", throwIfNotFound: true);
     }
 
     ~@GameControls()
@@ -335,6 +356,7 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Sprint;
     private readonly InputAction m_Player_Physical_attack;
     private readonly InputAction m_Player_Magic_attack;
+    private readonly InputAction m_Player_MouseZoom;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -366,6 +388,10 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Magic_attack".
         /// </summary>
         public InputAction @Magic_attack => m_Wrapper.m_Player_Magic_attack;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/MouseZoom".
+        /// </summary>
+        public InputAction @MouseZoom => m_Wrapper.m_Player_MouseZoom;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -407,6 +433,9 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
             @Magic_attack.started += instance.OnMagic_attack;
             @Magic_attack.performed += instance.OnMagic_attack;
             @Magic_attack.canceled += instance.OnMagic_attack;
+            @MouseZoom.started += instance.OnMouseZoom;
+            @MouseZoom.performed += instance.OnMouseZoom;
+            @MouseZoom.canceled += instance.OnMouseZoom;
         }
 
         /// <summary>
@@ -433,6 +462,9 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
             @Magic_attack.started -= instance.OnMagic_attack;
             @Magic_attack.performed -= instance.OnMagic_attack;
             @Magic_attack.canceled -= instance.OnMagic_attack;
+            @MouseZoom.started -= instance.OnMouseZoom;
+            @MouseZoom.performed -= instance.OnMouseZoom;
+            @MouseZoom.canceled -= instance.OnMouseZoom;
         }
 
         /// <summary>
@@ -508,5 +540,12 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnMagic_attack(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "MouseZoom" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnMouseZoom(InputAction.CallbackContext context);
     }
 }

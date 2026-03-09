@@ -7,20 +7,22 @@ public class PlayerMovement : MonoBehaviour
     public float walkSpeed = 3f;
     public float sprintSpeed = 6f;
     public float gravity = -9.81f;
+    public float rotationSpeed = 10f;
 
     private CharacterController _controller;
     private IInputService _inputService;
+    private Transform _mainCameraTransform;
     private float _verticalVelocity;
 
-    // Публичное свойство для Аниматора (0 - стоит, 0.4 - идет, 0.8 - бежит)
     public float CurrentAnimationSpeed { get; private set; }
 
     private void Awake()
     {
         _controller = GetComponent<CharacterController>();
+        // Кэшируем трансформ главной камеры
+        if (Camera.main != null) _mainCameraTransform = Camera.main.transform;
     }
 
-    // Внедрение зависимости (Dependency Injection)
     public void Construct(IInputService inputService)
     {
         _inputService = inputService;
@@ -28,7 +30,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        if (_inputService == null) return;
+        if (_inputService == null || _mainCameraTransform == null) return;
 
         HandleMovement();
         ApplyGravity();
@@ -37,18 +39,27 @@ public class PlayerMovement : MonoBehaviour
     private void HandleMovement()
     {
         Vector2 input = _inputService.MoveInput;
-        Vector3 moveDirection = new Vector3(input.x, 0f, input.y).normalized;
+
+        // 1. Вычисляем направления относительно камеры (игнорируя ось Y)
+        Vector3 camForward = _mainCameraTransform.forward;
+        Vector3 camRight = _mainCameraTransform.right;
+        camForward.y = 0;
+        camRight.y = 0;
+        camForward.Normalize();
+        camRight.Normalize();
+
+        // 2. Итоговый вектор движения
+        Vector3 moveDirection = (camForward * input.y + camRight * input.x).normalized;
 
         if (moveDirection.magnitude > 0.1f)
         {
-            // Поворот персонажа по направлению движения
-            transform.forward = moveDirection;
+            // 3. Плавный поворот персонажа лицом в сторону движения
+            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
 
-            // Выбор скорости
             float currentSpeed = _inputService.IsSprinting ? sprintSpeed : walkSpeed;
             _controller.Move(moveDirection * (currentSpeed * Time.deltaTime));
 
-            // Передаем точные значения для вашего BlendTree (0.4 - walk, 0.8 - run)
             CurrentAnimationSpeed = _inputService.IsSprinting ? 0.8f : 0.4f;
         }
         else
@@ -59,11 +70,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void ApplyGravity()
     {
-        if (_controller.isGrounded && _verticalVelocity < 0)
-        {
-            _verticalVelocity = -2f; // Прижимаем к земле
-        }
-
+        if (_controller.isGrounded && _verticalVelocity < 0) _verticalVelocity = -2f;
         _verticalVelocity += gravity * Time.deltaTime;
         _controller.Move(new Vector3(0, _verticalVelocity, 0) * Time.deltaTime);
     }
