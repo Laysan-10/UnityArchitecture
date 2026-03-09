@@ -120,7 +120,7 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""PhysicalAttack"",
+                    ""name"": ""Physical_attack"",
                     ""type"": ""Button"",
                     ""id"": ""c6cf4371-bb44-446a-b4f7-7f238e510a4b"",
                     ""expectedControlType"": """",
@@ -129,7 +129,7 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""MagicAttack"",
+                    ""name"": ""Magic_attack"",
                     ""type"": ""Button"",
                     ""id"": ""90a8b9bd-513a-4742-abae-341d9f7df776"",
                     ""expectedControlType"": """",
@@ -223,7 +223,7 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""PhysicalAttack"",
+                    ""action"": ""Physical_attack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -234,7 +234,7 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""MagicAttack"",
+                    ""action"": ""Magic_attack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -248,8 +248,8 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_Look = m_Player.FindAction("Look", throwIfNotFound: true);
         m_Player_Sprint = m_Player.FindAction("Sprint", throwIfNotFound: true);
-        m_Player_PhysicalAttack = m_Player.FindAction("PhysicalAttack", throwIfNotFound: true);
-        m_Player_MagicAttack = m_Player.FindAction("MagicAttack", throwIfNotFound: true);
+        m_Player_Physical_attack = m_Player.FindAction("Physical_attack", throwIfNotFound: true);
+        m_Player_Magic_attack = m_Player.FindAction("Magic_attack", throwIfNotFound: true);
     }
 
     ~@GameControls()
@@ -333,8 +333,8 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_Look;
     private readonly InputAction m_Player_Sprint;
-    private readonly InputAction m_Player_PhysicalAttack;
-    private readonly InputAction m_Player_MagicAttack;
+    private readonly InputAction m_Player_Physical_attack;
+    private readonly InputAction m_Player_Magic_attack;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -359,13 +359,13 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Sprint => m_Wrapper.m_Player_Sprint;
         /// <summary>
-        /// Provides access to the underlying input action "Player/PhysicalAttack".
+        /// Provides access to the underlying input action "Player/Physical_attack".
         /// </summary>
-        public InputAction @PhysicalAttack => m_Wrapper.m_Player_PhysicalAttack;
+        public InputAction @Physical_attack => m_Wrapper.m_Player_Physical_attack;
         /// <summary>
-        /// Provides access to the underlying input action "Player/MagicAttack".
+        /// Provides access to the underlying input action "Player/Magic_attack".
         /// </summary>
-        public InputAction @MagicAttack => m_Wrapper.m_Player_MagicAttack;
+        public InputAction @Magic_attack => m_Wrapper.m_Player_Magic_attack;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -401,12 +401,12 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
             @Sprint.started += instance.OnSprint;
             @Sprint.performed += instance.OnSprint;
             @Sprint.canceled += instance.OnSprint;
-            @PhysicalAttack.started += instance.OnPhysicalAttack;
-            @PhysicalAttack.performed += instance.OnPhysicalAttack;
-            @PhysicalAttack.canceled += instance.OnPhysicalAttack;
-            @MagicAttack.started += instance.OnMagicAttack;
-            @MagicAttack.performed += instance.OnMagicAttack;
-            @MagicAttack.canceled += instance.OnMagicAttack;
+            @Physical_attack.started += instance.OnPhysical_attack;
+            @Physical_attack.performed += instance.OnPhysical_attack;
+            @Physical_attack.canceled += instance.OnPhysical_attack;
+            @Magic_attack.started += instance.OnMagic_attack;
+            @Magic_attack.performed += instance.OnMagic_attack;
+            @Magic_attack.canceled += instance.OnMagic_attack;
         }
 
         /// <summary>
@@ -427,12 +427,12 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
             @Sprint.started -= instance.OnSprint;
             @Sprint.performed -= instance.OnSprint;
             @Sprint.canceled -= instance.OnSprint;
-            @PhysicalAttack.started -= instance.OnPhysicalAttack;
-            @PhysicalAttack.performed -= instance.OnPhysicalAttack;
-            @PhysicalAttack.canceled -= instance.OnPhysicalAttack;
-            @MagicAttack.started -= instance.OnMagicAttack;
-            @MagicAttack.performed -= instance.OnMagicAttack;
-            @MagicAttack.canceled -= instance.OnMagicAttack;
+            @Physical_attack.started -= instance.OnPhysical_attack;
+            @Physical_attack.performed -= instance.OnPhysical_attack;
+            @Physical_attack.canceled -= instance.OnPhysical_attack;
+            @Magic_attack.started -= instance.OnMagic_attack;
+            @Magic_attack.performed -= instance.OnMagic_attack;
+            @Magic_attack.canceled -= instance.OnMagic_attack;
         }
 
         /// <summary>
@@ -495,18 +495,18 @@ public partial class @GameControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSprint(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "PhysicalAttack" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Physical_attack" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnPhysicalAttack(InputAction.CallbackContext context);
+        void OnPhysical_attack(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "MagicAttack" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Magic_attack" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnMagicAttack(InputAction.CallbackContext context);
+        void OnMagic_attack(InputAction.CallbackContext context);
     }
 }

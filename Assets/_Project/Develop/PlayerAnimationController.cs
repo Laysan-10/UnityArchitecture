@@ -5,45 +5,56 @@ public class PlayerAnimationController : MonoBehaviour
 {
     private Animator _animator;
     private PlayerMovement _movement;
+    private PlayerCombat _combat;
 
+    // Кэшируем хэши для производительности
     private static readonly int SpeedHash = Animator.StringToHash("Speed");
-    private static readonly int SprintHash = Animator.StringToHash("Sprint");
     private static readonly int PhysicalAttackHash = Animator.StringToHash("PhysicalAttack");
     private static readonly int MagicAttackHash = Animator.StringToHash("MagicAttack");
+    private static readonly int HitHash = Animator.StringToHash("Hit");
+    private static readonly int DeadHash = Animator.StringToHash("Dead");
 
     private void Awake()
     {
         _animator = GetComponent<Animator>();
-        _movement = GetComponentInParent<PlayerMovement>();
+    }
+
+    // Внедрение зависимостей логики в аниматор
+    public void Construct(PlayerMovement movement, PlayerCombat combat)
+    {
+        _movement = movement;
+        _combat = combat;
+
+        // Подписываемся на события боя
+        _combat.OnAttackPhysFired += PlayPhysAttack;
+        _combat.OnAttackMagFired += PlayMagAttack;
     }
 
     private void Update()
     {
-        UpdateMovementAnimation();
-    }
-
-    private void UpdateMovementAnimation()
-    {
         if (_movement == null) return;
 
-        Vector3 velocity = _movement.Velocity;
-        velocity.y = 0f;
-
-        float speed = velocity.magnitude;
-
-        float maxSpeed = 10f; // sprintSpeed
-        float normalizedSpeed = speed / maxSpeed;
-
-        _animator.SetFloat(SpeedHash, normalizedSpeed);
+        // Плавный переход анимации (Dampening), чтобы персонаж не дергался при смене стейтов
+        // Mathf.MoveTowards плавно меняет текущее значение Speed в Аниматоре к целевому (0, 0.4 или 0.8)
+        float currentAnimSpeed = _animator.GetFloat(SpeedHash);
+        float targetAnimSpeed = _movement.CurrentAnimationSpeed;
+        
+        _animator.SetFloat(SpeedHash, Mathf.MoveTowards(currentAnimSpeed, targetAnimSpeed, 3f * Time.deltaTime));
     }
 
-    public void PlayPhysicalAttack()
-    {
-        _animator.SetTrigger(PhysicalAttackHash);
-    }
+    private void PlayPhysAttack() => _animator.SetTrigger(PhysicalAttackHash);
+    private void PlayMagAttack() => _animator.SetTrigger(MagicAttackHash);
 
-    public void PlayMagicAttack()
+    // Эти методы вызовет система Health в будущем (инверсия зависимостей!)
+    public void PlayHit() => _animator.SetTrigger(HitHash);
+    public void PlayDead() => _animator.SetTrigger(DeadHash);
+
+    private void OnDestroy()
     {
-        _animator.SetTrigger(MagicAttackHash);
+        if (_combat != null)
+        {
+            _combat.OnAttackPhysFired -= PlayPhysAttack;
+            _combat.OnAttackMagFired -= PlayMagAttack;
+        }
     }
 }

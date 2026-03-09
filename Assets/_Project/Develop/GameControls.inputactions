@@ -34,7 +34,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "PhysicalAttack",
+                    "name": "Physical_attack",
                     "type": "Button",
                     "id": "c6cf4371-bb44-446a-b4f7-7f238e510a4b",
                     "expectedControlType": "",
@@ -43,7 +43,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "MagicAttack",
+                    "name": "Magic_attack",
                     "type": "Button",
                     "id": "90a8b9bd-513a-4742-abae-341d9f7df776",
                     "expectedControlType": "",
@@ -137,7 +137,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "PhysicalAttack",
+                    "action": "Physical_attack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -148,7 +148,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "MagicAttack",
+                    "action": "Magic_attack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
