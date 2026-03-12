@@ -6,6 +6,8 @@ public class PlayerAnimationController : MonoBehaviour
     private Animator _animator;
     private PlayerMovement _movement;
     private PlayerCombat _combat;
+    private HealthComponent _healthComponent;
+
 
     private static readonly int SpeedHash = Animator.StringToHash("Speed");
     private static readonly int PhysicalAttackHash = Animator.StringToHash("PhysicalAttack");
@@ -19,14 +21,23 @@ public class PlayerAnimationController : MonoBehaviour
     }
 
     // Внедрение зависимостей логики в аниматор
-    public void Construct(PlayerMovement movement, PlayerCombat combat)
+    public void Construct(PlayerMovement movement, PlayerCombat combat, HealthComponent health)
     {
         _movement = movement;
         _combat = combat;
+        _healthComponent = health;
 
         // Подписываемся на события боя
         _combat.OnAttackPhysFired += PlayPhysAttack;
         _combat.OnAttackMagFired += PlayMagAttack;
+
+        // Подписки на получение урона (Инверсия зависимостей - Аниматор сам слушает здоровье!)
+        if (_healthComponent != null)
+        {
+            _healthComponent.Core.OnDamaged += PlayHit;
+            _healthComponent.Core.OnDeath += PlayDead;
+        }
+
     }
 
     private void Update()
@@ -54,6 +65,12 @@ public class PlayerAnimationController : MonoBehaviour
         {
             _combat.OnAttackPhysFired -= PlayPhysAttack;
             _combat.OnAttackMagFired -= PlayMagAttack;
+        }
+
+        if (_healthComponent != null)
+        {
+            _healthComponent.Core.OnDamaged -= PlayHit;
+            _healthComponent.Core.OnDeath -= PlayDead;
         }
     }
 }
