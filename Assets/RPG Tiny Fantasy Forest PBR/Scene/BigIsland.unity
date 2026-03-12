@@ -14879,7 +14879,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!81 &330585544
 AudioListener:
   m_ObjectHideFlags: 0
@@ -23064,15 +23064,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2688029795455433373, guid: 8de1b8ba0ddd8a049b321ed5875499b9, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 32.62817
+      value: 90.93
       objectReference: {fileID: 0}
     - target: {fileID: 2688029795455433373, guid: 8de1b8ba0ddd8a049b321ed5875499b9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 5.1747
+      value: 28.86
       objectReference: {fileID: 0}
     - target: {fileID: 2688029795455433373, guid: 8de1b8ba0ddd8a049b321ed5875499b9, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -3.03914
+      value: 13.94
       objectReference: {fileID: 0}
     - target: {fileID: 2688029795455433373, guid: 8de1b8ba0ddd8a049b321ed5875499b9, type: 3}
       propertyPath: m_LocalRotation.w
@@ -31306,8 +31306,8 @@ Transform:
   m_GameObject: {fileID: 632277605}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 27.314, z: 0}
+  m_LocalScale: {x: 3.0506, y: 3.0506, z: 3.0506}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1273575832}
@@ -63124,6 +63124,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5969857643194630098, guid: c8a972a3290c3fe41bf04b529f7f73dd, type: 3}
   m_PrefabInstance: {fileID: 518688182}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &1314189314 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2688029795455433373, guid: 8de1b8ba0ddd8a049b321ed5875499b9, type: 3}
+  m_PrefabInstance: {fileID: 473561158}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1314523820
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -68552,15 +68557,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7463604726979132816, guid: faf8545d2ce31354aacbc084027e7c25, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 32.62817
+      value: 90.93
       objectReference: {fileID: 0}
     - target: {fileID: 7463604726979132816, guid: faf8545d2ce31354aacbc084027e7c25, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 5.1747
+      value: 31.867058
       objectReference: {fileID: 0}
     - target: {fileID: 7463604726979132816, guid: faf8545d2ce31354aacbc084027e7c25, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -3.03914
+      value: 4.40283
       objectReference: {fileID: 0}
     - target: {fileID: 7463604726979132816, guid: faf8545d2ce31354aacbc084027e7c25, type: 3}
       propertyPath: m_LocalRotation.w
@@ -82686,15 +82691,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1237371795799634513, guid: 1685136f1a8978f40ae2133d370626c7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 32.62817
+      value: 90.93
       objectReference: {fileID: 0}
     - target: {fileID: 1237371795799634513, guid: 1685136f1a8978f40ae2133d370626c7, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 5.1747
+      value: 31.867058
       objectReference: {fileID: 0}
     - target: {fileID: 1237371795799634513, guid: 1685136f1a8978f40ae2133d370626c7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -3.03914
+      value: 4.40283
       objectReference: {fileID: 0}
     - target: {fileID: 1237371795799634513, guid: 1685136f1a8978f40ae2133d370626c7, type: 3}
       propertyPath: m_LocalRotation.w
@@ -82724,6 +82729,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6467786221496530532, guid: 1685136f1a8978f40ae2133d370626c7, type: 3}
+      propertyPath: Target.TrackingTarget
+      value: 
+      objectReference: {fileID: 1314189314}
     - target: {fileID: 8831720188335718359, guid: 1685136f1a8978f40ae2133d370626c7, type: 3}
       propertyPath: m_Name
       value: ThirdPersonCamera
