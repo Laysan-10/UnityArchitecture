@@ -15,7 +15,6 @@ public class Player : MonoBehaviour, IDamageble
     [SerializeField] private CanvasGroup _canvasGroup;
     [SerializeField] private GameObject _damagePanel;
 
-    [SerializeField] private DeathMenu _deathMenu;
 
 
     public int Health
@@ -41,7 +40,6 @@ public class Player : MonoBehaviour, IDamageble
     public void Die()
     {
         _animator.SetTrigger("Death");
-        _deathMenu.SetActivDeathMenu();
     }
 
     private void Awake()

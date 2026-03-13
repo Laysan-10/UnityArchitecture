@@ -69,7 +69,7 @@ public abstract class Enemy : MonoBehaviour, IDamageble
 
     public void Die()
     {
-        Debug.Log("Умер enemy");
+        Debug.Log("пїЅпїЅпїЅпїЅ enemy");
     }
 
     private IEnumerator AttackCooldown()
