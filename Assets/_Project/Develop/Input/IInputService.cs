@@ -8,7 +8,6 @@ public interface IInputService
 
      float ZoomInput { get; } 
     
-    // События для разовых действий (атаки)
     event Action OnPhysicalAttack;
     event Action OnMagicAttack;
 }

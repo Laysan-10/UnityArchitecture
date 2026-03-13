@@ -31,7 +31,7 @@ public class PlayerAnimationController : MonoBehaviour
         _combat.OnAttackPhysFired += PlayPhysAttack;
         _combat.OnAttackMagFired += PlayMagAttack;
 
-        // Подписки на получение урона (Инверсия зависимостей - Аниматор сам слушает здоровье!)
+        // Подписки на получение урона
         if (_healthComponent != null)
         {
             _healthComponent.Core.OnDamaged += PlayHit;

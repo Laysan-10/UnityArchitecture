@@ -34,6 +34,8 @@ public class PlayerMovement : MonoBehaviour
 
         HandleMovement();
         ApplyGravity();
+        if (Input.GetKeyDown(KeyCode.K)) GetComponent<IDamageable>().TakeDamage(20, 0);
+
     }
 
     private void HandleMovement()

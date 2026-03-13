@@ -13,7 +13,10 @@ public class GameBootstrapper : MonoBehaviour
     [SerializeField] private HealthComponent playerHealth;
 
     [Header("Компоненты UI")]
-    [SerializeField] private MagicCooldownUI magicUI; // <-- ДОБАВИЛИ ЭТО
+    [SerializeField] private MagicCooldownUI magicUI;
+    [SerializeField] private HealthBarUI healthBarUI; 
+    [SerializeField] private GameOverUI gameOverUI; 
+
 
     [Header("Компоненты Камеры")]
     [SerializeField] private ThirdPersonCameraController cameraController;
@@ -31,10 +34,14 @@ public class GameBootstrapper : MonoBehaviour
         
         if (cameraController != null) cameraController.Construct(_inputService);
         
-        // Внедряем боевую систему в интерфейс магии!
         if (magicUI != null) magicUI.Construct(playerCombat);
 
-        Debug.Log("Архитектура инициализирована: Все модули связаны.");
+        if (healthBarUI != null) healthBarUI.Construct(playerHealth.Core);
+        if (magicUI != null) magicUI.Construct(playerCombat);
+        
+        if (gameOverUI != null) gameOverUI.Construct(playerHealth.Core);
+
+        Debug.Log("Все компоненты инициализированы: Все модули связаны.");
     }
 
     private void OnDestroy()
