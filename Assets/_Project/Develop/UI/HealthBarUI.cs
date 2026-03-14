@@ -11,6 +11,10 @@ public class HealthBarUI : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private float animationTime = 0.5f;
     [SerializeField] private float delayTime = 0.5f;
+    
+    // НОВАЯ НАСТРОЙКА: Прятать ли полоску при смерти?
+    [Tooltip("Включите для мобов. Выключите для игрока.")]
+    [SerializeField] private bool hideOnDeath = false;
 
     private HealthCore _healthCore;
 
@@ -18,7 +22,9 @@ public class HealthBarUI : MonoBehaviour
     {
         _healthCore = core;
         
+        // Подписываемся на события
         _healthCore.OnHealthChanged += HandleHealthChanged;
+        _healthCore.OnDeath += HandleDeath; // Подписка на смерть
 
         SetMaxHealth(core.MaxHealth);
         UpdateVisuals(core.MaxHealth, core.MaxHealth, false);
@@ -32,7 +38,7 @@ public class HealthBarUI : MonoBehaviour
 
     private void HandleHealthChanged(float current, float max)
     {
-        Debug.Log($"UI: Здоровье изменилось! Текущее: {current}, Макс: {max}");
+        // Debug.Log($"UI: Здоровье изменилось! Текущее: {current}, Макс: {max}");
         UpdateVisuals(current, max, true);
     }
 
@@ -53,10 +59,23 @@ public class HealthBarUI : MonoBehaviour
         }
     }
 
+    // НОВЫЙ МЕТОД: Обработка смерти
+    private void HandleDeath()
+    {
+        if (hideOnDeath)
+        {
+            // Отключаем родительский объект (Canvas), чтобы скрыть всё
+            gameObject.SetActive(false); 
+        }
+    }
 
     private void OnDestroy()
     {
+        // Отписываемся от событий
         if (_healthCore != null)
+        {
             _healthCore.OnHealthChanged -= HandleHealthChanged;
+            _healthCore.OnDeath -= HandleDeath;
+        }
     }
 }

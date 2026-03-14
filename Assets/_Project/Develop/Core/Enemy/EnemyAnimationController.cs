@@ -4,71 +4,58 @@ using UnityEngine;
 public class EnemyAnimationController : MonoBehaviour
 {
     private Animator _animator;
-    private newEnemyAI _ai;  // Аналог PlayerMovement
-    private IDamageable _healthComponent;  // Аналог HealthComponent
+    private newEnemyAI _ai;
+    private HealthCore _healthCore; // Слушаем чистое ядро здоровья САМОГО МОБА
 
-    // Хеши параметров анимаций (оптимизация, как в PlayerAnimationController)
     private static readonly int IsRunHash = Animator.StringToHash("IsRun");
     private static readonly int IsAttackHash = Animator.StringToHash("IsAttack");
     private static readonly int HitHash = Animator.StringToHash("IsHit");
-    private static readonly int DeadHash = Animator.StringToHash("death");
+    private static readonly int DeadHash = Animator.StringToHash("IsDead");
 
     private void Awake()
     {
         _animator = GetComponent<Animator>();
     }
 
-    // Внедрение зависимостей (DIP - аналогично игроку)
-    public void Construct(newEnemyAI ai, IDamageable health)
+    // Внедряем ИИ и ЗДОРОВЬЕ ВРАГА (а не игрока)
+    public void Construct(newEnemyAI ai, HealthCore healthCore)
     {
         _ai = ai;
-        _healthComponent = health;
+        _healthCore = healthCore;
 
-        // Подписка на события урона (если healthComponent имеет события OnDamaged/OnDeath)
-        if (_healthComponent != null)
+        // Подписка на урон по врагу
+        if (_healthCore != null)
         {
-            // Предполагаем, что IDamageable имеет события (расширьте интерфейс при необходимости)
-            // _healthComponent.OnDamaged += PlayHit;
-            // _healthComponent.OnDeath += PlayDead;
+            _healthCore.OnDamaged += PlayHit;
+            _healthCore.OnDeath += PlayDead;
         }
     }
 
     private void Update()
     {
-        if (_ai == null) return;
+        if (_ai == null || (_healthCore != null && _healthCore.IsDead)) return;
 
-        // Плавный переход IsRun (0 или 1) вместо резкой смены
-        float currentRun = _animator.GetBool(IsRunHash) ? 1f : 0f;
-        float targetRun = _ai.IsRunning ? 1f : 0f;  // Нужно добавить в newEnemyAI
-        
-        float smoothRun = Mathf.MoveTowards(currentRun, targetRun, 5f * Time.deltaTime);
-        _animator.SetBool(IsRunHash, smoothRun > 0.5f);
+        // БЕЗ сглаживания. Если ИИ говорит бежать - бежим мгновенно.
+        _animator.SetBool(IsRunHash, _ai.IsRunning);
     }
 
-    // Вызывается из newEnemyAI при атаке (или через событие)
-    public void PlayAttack()
-    {
-        _animator.SetTrigger(IsAttackHash);
-    }
-
-    // Вызывается системой Health (DIP)
-    public void PlayHit()
-    {
-        _animator.SetTrigger(HitHash);
-    }
-
-    public void PlayDead()
+    public void PlayAttack() => _animator.SetTrigger(IsAttackHash);
+    private void PlayHit() => _animator.SetTrigger(HitHash);
+    
+    private void PlayDead() 
     {
         _animator.SetTrigger(DeadHash);
+        // Отключаем ИИ и Навмеш, чтобы труп не полз за игроком
+        if (_ai != null) _ai.enabled = false;
+        if (TryGetComponent<UnityEngine.AI.NavMeshAgent>(out var agent)) agent.enabled = false;
     }
 
     private void OnDestroy()
     {
-        // Отписка от событий (чистый код)
-        if (_healthComponent != null)
+        if (_healthCore != null)
         {
-            // _healthComponent.OnDamaged -= PlayHit;
-            // _healthComponent.OnDeath -= PlayDead;
+            _healthCore.OnDamaged -= PlayHit;
+            _healthCore.OnDeath -= PlayDead;
         }
     }
 }

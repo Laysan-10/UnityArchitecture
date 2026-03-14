@@ -1,21 +1,21 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class rotation_health : MonoBehaviour
 {
-    private Transform _startTransform;
+    private Camera _mainCamera;
 
-    // Start is called before the first frame update
-    void Awake()
+    private void Start()
     {
-        _startTransform = transform;
+        // Находим главную камеру на сцене
+        _mainCamera = Camera.main;
     }
 
-    // Update is called once per frame
-    void LateUpdate()
+    private void LateUpdate()
     {
-        transform.position = _startTransform.position;
-        transform.rotation = _startTransform.rotation;
+        if (_mainCamera != null)
+        {
+            // Заставляем Canvas смотреть ровно в ту же сторону, куда смотрит камера
+            transform.LookAt(transform.position + _mainCamera.transform.forward);
+        }
     }
 }

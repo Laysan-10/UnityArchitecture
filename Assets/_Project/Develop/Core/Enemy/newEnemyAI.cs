@@ -1,95 +1,112 @@
-using System;
 using UnityEngine;
 using UnityEngine.AI;
+
+[RequireComponent(typeof(NavMeshAgent), typeof(EnemyAnimationController))]
 public class newEnemyAI : MonoBehaviour
 {
- [SerializeField] private Transform targetTransform;
-    private IDamageable target;  // Зависимость от абстракции (DIP)
+    [Header("Настройки ИИ")]
+    public float lookRadius = 10f;
+    public float attackCooldown = 1.5f;
+    [SerializeField] private float damageAmount = 15f;
     
-    private NavMeshAgent agent;
-    public Animator animator;
-    public float LookRadius;
-    public float attackCooldown = 1f;
-    [SerializeField] private float damageAmount = 10f;  // Урон врага
-    private float lastAttackTime;
+    [Header("Ссылки")]
+    [SerializeField] private Transform targetTransform;
+    [SerializeField] private HealthBarUI enemyHealthBarUI;
+
+    private NavMeshAgent _agent;
     private EnemyAnimationController _animController;
-     private bool _isRunning;
-    public bool IsRunning => _isRunning;
+    private HealthComponent _myHealth;
+    private IDamageable _targetDamageable;
+
+    private float _lastAttackTime;
+    
+    public bool IsRunning { get; private set; }
 
     private void Start()
     {
-        agent = GetComponent<NavMeshAgent>();
-        lastAttackTime = -attackCooldown;
-        
-        // Получаем интерфейс из Transform (DIP: не жесткая связь с PlayerHealth)
+        _agent = GetComponent<NavMeshAgent>();
+        _animController = GetComponent<EnemyAnimationController>();
+        _myHealth = GetComponent<HealthComponent>(); 
+
+        if (_animController != null && _myHealth != null)
+        {
+            _animController.Construct(this, _myHealth.Core);
+        }
+
+        if (enemyHealthBarUI != null && _myHealth != null)
+        {
+            enemyHealthBarUI.Construct(_myHealth.Core);
+        }
+
         if (targetTransform != null)
         {
-            target = targetTransform.GetComponent<IDamageable>();
-            _animController = GetComponent<EnemyAnimationController>();
-            if (_animController != null)
+            _targetDamageable = targetTransform.GetComponent<IDamageable>();
+        }
+    }
+
+    private void Update()
+    {
+        // Убрали прятание UI отсюда. Теперь тут только логика ИИ!
+        if (targetTransform == null || (_myHealth != null && _myHealth.Core.IsDead)) 
         {
-            _animController.Construct(this, target);
+            IsRunning = false;
+            _agent.isStopped = true;
+            return;
+        }
+
+        float distance = Vector3.Distance(targetTransform.position, transform.position);
+
+        if (distance <= lookRadius)
+        {
+            if (distance <= _agent.stoppingDistance)
+            {
+                IsRunning = false;
+                _agent.isStopped = true;
+                _agent.velocity = Vector3.zero;
+
+                LookTarget();
+
+                if (Time.time - _lastAttackTime >= attackCooldown)
+                {
+                    Attack();
+                }
+            }
+            else 
+            {
+                IsRunning = true;
+                _agent.isStopped = false;
+                _agent.SetDestination(targetTransform.position);
+            }
         }
         else
         {
-            Debug.LogError($"EnemyAnimationController не найден на объекте {gameObject.name}!");
-        }
+            IsRunning = false;
+            _agent.isStopped = true;
         }
     }
 
-       private void Update()
-{
-    if (targetTransform == null) return;
-
-    float distance = Vector3.Distance(targetTransform.position, transform.position);
-
-    if (distance < LookRadius)
+    private void Attack()
     {
-        // ПРОВЕРКА: Если мы уже подошли на расстояние удара
-        if (distance <= agent.stoppingDistance)
+        _lastAttackTime = Time.time;
+        _animController?.PlayAttack();
+
+        if (_targetDamageable != null)
         {
-            // 1. ЛОГИКА: Выключаем бег для аниматора
-            _isRunning = false; 
-
-            // 2. ФИЗИКА: Полностью останавливаем агента
-            agent.isStopped = true;       // Отключаем расчет пути
-            agent.velocity = Vector3.zero; // Обнуляем инерцию (чтобы не скользил)
-
-            LookTarget(); // Поворачиваемся к игроку
-
-            // 3. АТАКА: Проверка кулдауна
-            if (Time.time - lastAttackTime >= attackCooldown)
-            {
-                lastAttackTime = Time.time;
-                _animController?.PlayAttack();
-            }
-        }
-        else 
-        {
-            // ПРОВЕРКА: Если мы еще далеко — преследуем
-            _isRunning = true;
-            agent.isStopped = false; // Разрешаем движение
-            agent.SetDestination(targetTransform.position);
+            _targetDamageable.TakeDamage(damageAmount, 0);
         }
     }
-    else
-    {
-        // Игрок вышел из радиуса видимости
-        _isRunning = false;
-        agent.isStopped = true;
-    }
-}
 
-    void LookTarget()
+    private void LookTarget()
     {
         Vector3 direction = (targetTransform.position - transform.position).normalized;
-        Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);  // Улучшено
+        direction.y = 0; 
+        Quaternion lookRotation = Quaternion.LookRotation(direction);
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
     }
 
-    private void OnDrawGizmos()
+    private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, LookRadius);
+        Gizmos.DrawWireSphere(transform.position, lookRadius);
     }
 }
