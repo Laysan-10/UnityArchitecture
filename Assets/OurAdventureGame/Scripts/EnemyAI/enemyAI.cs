@@ -16,6 +16,7 @@ public class enemyAI : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         lastAttackTime = -attackCooldown;
+        
     }
 
     private void Update()
