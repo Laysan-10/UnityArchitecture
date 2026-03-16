@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
-    [Header("Настройки скорости")]
+    [Header("Speed settings")]
     public float walkSpeed = 3f;
     public float sprintSpeed = 6f;
     public float gravity = -9.81f;
@@ -42,7 +42,6 @@ public class PlayerMovement : MonoBehaviour
     {
         Vector2 input = _inputService.MoveInput;
 
-        // 1. Вычисляем направления относительно камеры (игнорируя ось Y)
         Vector3 camForward = _mainCameraTransform.forward;
         Vector3 camRight = _mainCameraTransform.right;
         camForward.y = 0;
@@ -50,12 +49,10 @@ public class PlayerMovement : MonoBehaviour
         camForward.Normalize();
         camRight.Normalize();
 
-        // 2. Итоговый вектор движения
         Vector3 moveDirection = (camForward * input.y + camRight * input.x).normalized;
 
         if (moveDirection.magnitude > 0.1f)
         {
-            // 3. Плавный поворот персонажа лицом в сторону движения
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
 

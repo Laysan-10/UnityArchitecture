@@ -6,7 +6,7 @@ public class newEnemyAI : MonoBehaviour
 {
     public enum EnemyType { Melee, Ranged }
 
-    [Header("Базовые настройки")]
+    [Header("Basic settings")]
     public EnemyType type;
     public float lookRadius = 15f;      
     public float attackRange = 2.5f;
@@ -17,7 +17,7 @@ public class newEnemyAI : MonoBehaviour
     [SerializeField] private GameObject magicPrefab;
     [SerializeField] private Transform firePoint;
 
-    [Header("Ссылки")]
+    [Header("References")]
     [SerializeField] private Transform targetTransform;
     [SerializeField] private HealthBarUI enemyHealthBarUI;
 

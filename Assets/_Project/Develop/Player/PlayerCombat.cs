@@ -3,13 +3,13 @@ using UnityEngine;
 
 public class PlayerCombat : MonoBehaviour
 {
-    [Header("Настройки Физической Атаки")]
+    [Header("Physical Attack Settings")]
     [SerializeField] private float physDamage = 25f;
     [SerializeField] private float attackRange = 1.5f;
     [SerializeField] private Transform attackPoint; 
     [SerializeField] private LayerMask enemyLayer; 
 
-    [Header("Настройки Магической Атаки")]
+    [Header("Magic Attack Settings")]
     [SerializeField] private float magicDamage = 40f;
     [SerializeField] private GameObject magicPrefab;
     [SerializeField] private Transform firePoint; 
@@ -18,7 +18,6 @@ public class PlayerCombat : MonoBehaviour
     private IInputService _inputService;
     private float _magicCooldownTimer;
 
-    // Свойство проверки готовности магии
     public bool IsMagicReady => _magicCooldownTimer <= 0;
 
     public event Action OnAttackPhysFired;
@@ -81,7 +80,6 @@ public class PlayerCombat : MonoBehaviour
             
             if (fireball.TryGetComponent<MagicProjectile>(out var projectile))
             {
-                // ПЕРЕДАЕМ TRUE, так как это стреляет игрок
                 projectile.Setup(magicDamage, true); 
             }
         }
@@ -90,7 +88,6 @@ public class PlayerCombat : MonoBehaviour
         OnMagicCooldownStarted?.Invoke();
     }
 
-    //рисует радиус атаки мечом
     private void OnDrawGizmosSelected()
     {
         if (attackPoint == null) return;

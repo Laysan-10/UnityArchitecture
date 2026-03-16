@@ -3,22 +3,22 @@ using UnityEngine.InputSystem;
 
 public class GameBootstrapper : MonoBehaviour
 {
-    [Header("Настройки")]
+    [Header("Settings")]
     [SerializeField] private InputActionAsset inputActionAsset;
 
-    [Header("Компоненты Игрока")]
+    [Header("Player Components")]
     [SerializeField] private PlayerMovement playerMovement;
     [SerializeField] private PlayerCombat playerCombat;
     [SerializeField] private PlayerAnimationController playerAnimation;
     [SerializeField] private HealthComponent playerHealth;
 
-    [Header("Компоненты UI")]
+    [Header("UI Components")]
     [SerializeField] private MagicCooldownUI magicUI;
     [SerializeField] private HealthBarUI healthBarUI; 
     [SerializeField] private GameOverUI gameOverUI; 
 
 
-    [Header("Компоненты Камеры")]
+    [Header("Camera Components")]
     [SerializeField] private ThirdPersonCameraController cameraController;
 
     private InputService _inputService;

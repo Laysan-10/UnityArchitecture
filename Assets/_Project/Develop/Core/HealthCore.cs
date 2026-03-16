@@ -7,10 +7,9 @@ public class HealthCore
     public float CurrentHealth { get; private set; }
     public bool IsDead => CurrentHealth <= 0;
 
-    // События, на которые подпишутся UI, Аниматор и ИИ
-    public event Action<float, float> OnHealthChanged; // Передает (Текущее HP, Макс HP)
-    public event Action OnDamaged; // Вызывается для стана/анимации получения урона
-    public event Action OnDeath; // Вызывается при смерти
+    public event Action<float, float> OnHealthChanged; 
+    public event Action OnDamaged; 
+    public event Action OnDeath; 
 
     public HealthCore(float maxHealth)
     {
@@ -22,7 +21,6 @@ public class HealthCore
     {
         if (IsDead) return;
 
-        // В будущем тут можно добавить броню (например: physical - armor)
         float totalDamage = physical + magic;
         
         CurrentHealth = Mathf.Clamp(CurrentHealth - totalDamage, 0, MaxHealth);
@@ -31,11 +29,11 @@ public class HealthCore
 
         if (CurrentHealth > 0)
         {
-            OnDamaged?.Invoke(); // Герой жив, но получил по лицу
+            OnDamaged?.Invoke(); 
         }
         else
         {
-            OnDeath?.Invoke(); // Герой умер
+            OnDeath?.Invoke(); 
         }
     }
 }

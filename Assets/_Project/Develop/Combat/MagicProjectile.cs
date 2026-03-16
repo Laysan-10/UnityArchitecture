@@ -27,18 +27,11 @@ public class MagicProjectile : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // 1. Игнорируем триггеры (чужие радиусы атак, зоны видимости)
         if (other.isTrigger) return;
 
-        // 2. Игнорируем своих (по тегам)
         if (_isPlayerProjectile && other.CompareTag("Player")) return;
         if (!_isPlayerProjectile && other.CompareTag("Enemy")) return;
 
-        // 3. Игнорируем пол/землю (опционально, если хотите, чтобы шар летел над землей и не взрывался об кочки)
-        // Если у вашей земли есть тег "Ground" или "Terrain", раскомментируйте строчку ниже:
-        // if (other.CompareTag("Terrain")) return;
-
-        // Если шар долетел сюда, значит он во что-то врезался!
         Debug.Log($"<color=cyan>Снаряд столкнулся с: {other.name} (Его тег: {other.tag})</color>");
 
         if (other.TryGetComponent<IDamageable>(out var damageable))

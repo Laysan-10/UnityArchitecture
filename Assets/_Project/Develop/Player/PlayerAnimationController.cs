@@ -20,18 +20,15 @@ public class PlayerAnimationController : MonoBehaviour
         _animator = GetComponent<Animator>();
     }
 
-    // Внедрение зависимостей логики в аниматор
     public void Construct(PlayerMovement movement, PlayerCombat combat, HealthComponent health)
     {
         _movement = movement;
         _combat = combat;
         _healthComponent = health;
 
-        // Подписываемся на события боя
         _combat.OnAttackPhysFired += PlayPhysAttack;
         _combat.OnAttackMagFired += PlayMagAttack;
 
-        // Подписки на получение урона
         if (_healthComponent != null)
         {
             _healthComponent.Core.OnDamaged += PlayHit;
@@ -55,7 +52,6 @@ public class PlayerAnimationController : MonoBehaviour
     private void PlayPhysAttack() => _animator.SetTrigger(PhysicalAttackHash);
     private void PlayMagAttack() => _animator.SetTrigger(MagicAttackHash);
 
-    // Эти методы вызовет система Health в будущем (инверсия зависимостей!)
     public void PlayHit() => _animator.SetTrigger(HitHash);
     public void PlayDead() => _animator.SetTrigger(DeadHash);
 

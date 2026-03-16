@@ -5,7 +5,6 @@ public class DummyDebug : MonoBehaviour
     private void Start()
     {
         var health = GetComponent<HealthComponent>();
-        // Подписываемся на изменение здоровья куба
         health.Core.OnHealthChanged += (current, max) => {
             Debug.Log($"<color=green>Куб получил урон! Текущее здоровье: {current} / {max}</color>");
         };
