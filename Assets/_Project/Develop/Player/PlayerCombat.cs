@@ -81,7 +81,8 @@ public class PlayerCombat : MonoBehaviour
             
             if (fireball.TryGetComponent<MagicProjectile>(out var projectile))
             {
-                projectile.Setup(magicDamage);
+                // ПЕРЕДАЕМ TRUE, так как это стреляет игрок
+                projectile.Setup(magicDamage, true); 
             }
         }
 

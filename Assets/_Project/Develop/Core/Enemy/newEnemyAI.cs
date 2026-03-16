@@ -4,11 +4,19 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent), typeof(EnemyAnimationController))]
 public class newEnemyAI : MonoBehaviour
 {
-    [Header("Настройки ИИ")]
-    public float lookRadius = 10f;
+    public enum EnemyType { Melee, Ranged }
+
+    [Header("Базовые настройки")]
+    public EnemyType type;
+    public float lookRadius = 15f;      
+    public float attackRange = 2.5f; // Сделайте чуть больше, чем StoppingDistance у NavMeshAgent!
     public float attackCooldown = 1.5f;
     [SerializeField] private float damageAmount = 15f;
-    
+
+    [Header("Для дальнего боя (Ranged)")]
+    [SerializeField] private GameObject magicPrefab;
+    [SerializeField] private Transform firePoint;
+
     [Header("Ссылки")]
     [SerializeField] private Transform targetTransform;
     [SerializeField] private HealthBarUI enemyHealthBarUI;
@@ -17,7 +25,6 @@ public class newEnemyAI : MonoBehaviour
     private EnemyAnimationController _animController;
     private HealthComponent _myHealth;
     private IDamageable _targetDamageable;
-
     private float _lastAttackTime;
     
     public bool IsRunning { get; private set; }
@@ -42,11 +49,13 @@ public class newEnemyAI : MonoBehaviour
         {
             _targetDamageable = targetTransform.GetComponent<IDamageable>();
         }
+
+        // ВАЖНО: Мы больше не меняем stoppingDistance программно! 
+        // Настройте его вручную в компоненте NavMeshAgent (например, 2 для Melee, 8 для Ranged).
     }
 
     private void Update()
     {
-        // Убрали прятание UI отсюда. Теперь тут только логика ИИ!
         if (targetTransform == null || (_myHealth != null && _myHealth.Core.IsDead)) 
         {
             IsRunning = false;
@@ -58,6 +67,7 @@ public class newEnemyAI : MonoBehaviour
 
         if (distance <= lookRadius)
         {
+            // ПРОВЕРКА 1: Останавливаем агента, если дошли до его личной границы остановки
             if (distance <= _agent.stoppingDistance)
             {
                 IsRunning = false;
@@ -66,7 +76,8 @@ public class newEnemyAI : MonoBehaviour
 
                 LookTarget();
 
-                if (Time.time - _lastAttackTime >= attackCooldown)
+                // ПРОВЕРКА 2: Атакуем, если игрок в радиусе поражения оружия (attackRange)
+                if (distance <= attackRange && Time.time - _lastAttackTime >= attackCooldown)
                 {
                     Attack();
                 }
@@ -90,9 +101,25 @@ public class newEnemyAI : MonoBehaviour
         _lastAttackTime = Time.time;
         _animController?.PlayAttack();
 
-        if (_targetDamageable != null)
+        if (type == EnemyType.Melee)
         {
-            _targetDamageable.TakeDamage(damageAmount, 0);
+            if (_targetDamageable != null)
+            {
+                _targetDamageable.TakeDamage(damageAmount, 0);
+            }
+        }
+        else if (type == EnemyType.Ranged)
+        {
+            if (magicPrefab != null && firePoint != null)
+            {
+                Vector3 aimDirection = (targetTransform.position + Vector3.up * 1f) - firePoint.position;
+                GameObject fireball = Instantiate(magicPrefab, firePoint.position, Quaternion.LookRotation(aimDirection));
+                
+                if (fireball.TryGetComponent<MagicProjectile>(out var projectile))
+                {
+                    projectile.Setup(damageAmount, false);
+                }
+            }
         }
     }
 
@@ -102,11 +129,5 @@ public class newEnemyAI : MonoBehaviour
         direction.y = 0; 
         Quaternion lookRotation = Quaternion.LookRotation(direction);
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, lookRadius);
     }
 }
