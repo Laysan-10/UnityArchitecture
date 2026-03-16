@@ -9,7 +9,7 @@ public class newEnemyAI : MonoBehaviour
     [Header("Базовые настройки")]
     public EnemyType type;
     public float lookRadius = 15f;      
-    public float attackRange = 2.5f; // Сделайте чуть больше, чем StoppingDistance у NavMeshAgent!
+    public float attackRange = 2.5f;
     public float attackCooldown = 1.5f;
     [SerializeField] private float damageAmount = 15f;
 
@@ -49,9 +49,6 @@ public class newEnemyAI : MonoBehaviour
         {
             _targetDamageable = targetTransform.GetComponent<IDamageable>();
         }
-
-        // ВАЖНО: Мы больше не меняем stoppingDistance программно! 
-        // Настройте его вручную в компоненте NavMeshAgent (например, 2 для Melee, 8 для Ranged).
     }
 
     private void Update()
@@ -67,7 +64,6 @@ public class newEnemyAI : MonoBehaviour
 
         if (distance <= lookRadius)
         {
-            // ПРОВЕРКА 1: Останавливаем агента, если дошли до его личной границы остановки
             if (distance <= _agent.stoppingDistance)
             {
                 IsRunning = false;
@@ -76,7 +72,6 @@ public class newEnemyAI : MonoBehaviour
 
                 LookTarget();
 
-                // ПРОВЕРКА 2: Атакуем, если игрок в радиусе поражения оружия (attackRange)
                 if (distance <= attackRange && Time.time - _lastAttackTime >= attackCooldown)
                 {
                     Attack();

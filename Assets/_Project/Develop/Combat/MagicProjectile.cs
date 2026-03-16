@@ -13,7 +13,6 @@ public class MagicProjectile : MonoBehaviour
     {
         _damage = magicDamage;
         _isPlayerProjectile = isPlayerProjectile;
-        Debug.Log($"Снаряд создан. Урон: {_damage}. Стрелял игрок? {_isPlayerProjectile}");
     }
 
     private void Start()
@@ -26,27 +25,28 @@ public class MagicProjectile : MonoBehaviour
         transform.Translate(Vector3.forward * speed * Time.deltaTime);
     }
 
-    // МЕТОД СРАБОТАЕТ ТОЛЬКО ЕСЛИ НА ЭТОМ ОБЪЕКТЕ ЕСТЬ КОЛЛАЙДЕР С ГАЛОЧКОЙ "IS TRIGGER" И RIGIDBODY
     private void OnTriggerEnter(Collider other)
     {
-        // 1. Проверяем, кто стрелял и кого игнорировать
+        // 1. Игнорируем триггеры (чужие радиусы атак, зоны видимости)
+        if (other.isTrigger) return;
+
+        // 2. Игнорируем своих (по тегам)
         if (_isPlayerProjectile && other.CompareTag("Player")) return;
         if (!_isPlayerProjectile && other.CompareTag("Enemy")) return;
 
-        Debug.Log($"<color=cyan>Снаряд столкнулся с: {other.name}</color>");
+        // 3. Игнорируем пол/землю (опционально, если хотите, чтобы шар летел над землей и не взрывался об кочки)
+        // Если у вашей земли есть тег "Ground" или "Terrain", раскомментируйте строчку ниже:
+        // if (other.CompareTag("Terrain")) return;
 
-        // 2. Ищем интерфейс урона
+        // Если шар долетел сюда, значит он во что-то врезался!
+        Debug.Log($"<color=cyan>Снаряд столкнулся с: {other.name} (Его тег: {other.tag})</color>");
+
         if (other.TryGetComponent<IDamageable>(out var damageable))
         {
             damageable.TakeDamage(0, _damage); 
             Debug.Log($"<color=orange>УСПЕХ! Снаряд нанес {_damage} магического урона объекту {other.name}!</color>");
         }
-        else
-        {
-            Debug.Log($"<color=yellow>ПРЕДУПРЕЖДЕНИЕ: На объекте {other.name} нет интерфейса IDamageable!</color>");
-        }
 
-        // 3. Эффекты и уничтожение
         if (impactEffect != null)
         {
             Instantiate(impactEffect, transform.position, Quaternion.identity);

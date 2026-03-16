@@ -126,7 +126,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a6fd0cc95026c248a71dfcea6d0b617, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MagicProjectile
-  speed: 15
+  speed: 25
   lifetime: 6
   impactEffect: {fileID: 0}
 --- !u!54 &-6705609458455274542
