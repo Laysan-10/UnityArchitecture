@@ -6,6 +6,7 @@ public class MainMenuView : MonoBehaviour
     [Header("Main Menu Buttons")]
     public Button playButton;
     public Button settingsButton;
+    public Button quitButton;
 
     [Header("Settings Panel")]
     public GameObject settingsPanel;

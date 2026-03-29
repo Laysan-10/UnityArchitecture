@@ -1,4 +1,5 @@
 using UnityEngine.SceneManagement;
+using UnityEngine;
 
 public class MainMenuController
 {
@@ -12,19 +13,22 @@ public class MainMenuController
         _model = model;
         _audioService = audio;
 
-        // Подписываемся на кнопки
+        _view.settingsPanel.SetActive(false);
+        _view.volumeSlider.value = _model.MusicVolume;
+
         _view.playButton.onClick.AddListener(PlayGame);
         _view.settingsButton.onClick.AddListener(() => _view.ShowSettings(true));
         _view.closeSettingsButton.onClick.AddListener(() => _view.ShowSettings(false));
         
-        // Настройка слайдера
-        _view.volumeSlider.value = _model.MusicVolume;
+        if (_view.quitButton != null) 
+            _view.quitButton.onClick.AddListener(() => Application.Quit());
+
         _view.volumeSlider.onValueChanged.AddListener(OnVolumeChanged);
     }
 
     private void PlayGame()
     {
-        SceneManager.LoadScene("GameScene"); // Имя вашей игровой сцены
+        SceneManager.LoadScene("World-game"); 
     }
 
     private void OnVolumeChanged(float value)
