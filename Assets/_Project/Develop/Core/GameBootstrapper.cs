@@ -25,23 +25,26 @@ public class GameBootstrapper : MonoBehaviour
 
     private void Start()
     {
+        // Запрашиваем глобальные сервисы у Entrypoint проекта
+        var audio = ProjectBootstrapper.Instance.AudioService;
+        var save = ProjectBootstrapper.Instance.SaveLoadService;
+
+        // Инициализируем локальный ввод
         _inputService = new InputService(inputActionAsset);
         _inputService.Enable();
 
+        // Дальше твоя обычная логика прокидывания зависимостей (Construct)
         playerMovement.Construct(_inputService);
         playerCombat.Construct(_inputService);
         playerAnimation.Construct(playerMovement, playerCombat, playerHealth);
         
         if (cameraController != null) cameraController.Construct(_inputService);
-        
         if (magicUI != null) magicUI.Construct(playerCombat);
-
         if (healthBarUI != null) healthBarUI.Construct(playerHealth.Core);
-        if (magicUI != null) magicUI.Construct(playerCombat);
-        
         if (gameOverUI != null) gameOverUI.Construct(playerHealth.Core);
 
-        Debug.Log("Все компоненты инициализированы: Все модули связаны.");
+        // Теперь мы можем проиграть стартовый звук через сервис!
+        audio.PlaySound("Game_Start");
     }
 
     private void OnDestroy()

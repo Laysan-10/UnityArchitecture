@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/_Project/Scenes/Initial.unity
+    guid: 3a1981b5d2fa17242aea5493d932035b
+  - enabled: 1
     path: Assets/_Project/Scenes/BigIsland.unity
     guid: dc950ffe35d587b4cb76b17b86c42275
   m_configObjects:
