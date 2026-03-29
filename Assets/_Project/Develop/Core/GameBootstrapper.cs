@@ -52,7 +52,7 @@ public class GameBootstrapper : MonoBehaviour
         if (healthBarUI != null) healthBarUI.Construct(playerHealth.Core);
         if (gameOverUI != null) gameOverUI.Construct(playerHealth.Core);
 
-        // Теперь мы можем проиграть стартовый звук через сервис!
+        audio.PlayMusic("MainTheme");
         audio.PlaySound("Game_Start");
 
         newEnemyAI[] allEnemies = FindObjectsByType<newEnemyAI>(FindObjectsSortMode.None);
