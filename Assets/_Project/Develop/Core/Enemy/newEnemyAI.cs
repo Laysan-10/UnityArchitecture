@@ -98,13 +98,18 @@ public class newEnemyAI : MonoBehaviour
 
         if (type == EnemyType.Melee)
         {
+            // Звук замаха врага
+            ProjectBootstrapper.Instance.AudioService.PlaySound("Enemy_Attack_Melee");
             if (_targetDamageable != null)
             {
                 _targetDamageable.TakeDamage(damageAmount, 0);
+                ProjectBootstrapper.Instance.AudioService.PlaySound("Player_Hit");
             }
         }
         else if (type == EnemyType.Ranged)
         {
+            // Звук выстрела врага
+            ProjectBootstrapper.Instance.AudioService.PlaySound("Enemy_Attack_Ranged");
             if (magicPrefab != null && firePoint != null)
             {
                 Vector3 aimDirection = (targetTransform.position + Vector3.up * 1f) - firePoint.position;

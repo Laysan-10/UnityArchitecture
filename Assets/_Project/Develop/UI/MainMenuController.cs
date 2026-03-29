@@ -7,24 +7,33 @@ public class MainMenuController
     private readonly SettingsModel _model;
     private readonly IAudioService _audioService;
 
-    public MainMenuController(MainMenuView view, SettingsModel model, IAudioService audio)
-    {
-        _view = view;
-        _model = model;
-        _audioService = audio;
+public MainMenuController(MainMenuView view, SettingsModel model, IAudioService audio)
+{
+    _view = view;
+    _model = model;
+    _audioService = audio;
 
-        _view.settingsPanel.SetActive(false);
-        _view.volumeSlider.value = _model.MusicVolume;
+    _view.settingsPanel.SetActive(false);
+    _view.volumeSlider.value = _model.MusicVolume;
 
-        _view.playButton.onClick.AddListener(PlayGame);
-        _view.settingsButton.onClick.AddListener(() => _view.ShowSettings(true));
-        _view.closeSettingsButton.onClick.AddListener(() => _view.ShowSettings(false));
-        
-        if (_view.quitButton != null) 
-            _view.quitButton.onClick.AddListener(() => Application.Quit());
+    // Подписываем звук на все кнопки
+    _view.playButton.onClick.AddListener(() => PlayClick());
+    _view.settingsButton.onClick.AddListener(() => PlayClick());
+    _view.closeSettingsButton.onClick.AddListener(() => PlayClick());
+    if (_view.quitButton != null) _view.quitButton.onClick.AddListener(() => PlayClick());
 
-        _view.volumeSlider.onValueChanged.AddListener(OnVolumeChanged);
-    }
+    // Логика кнопок
+    _view.playButton.onClick.AddListener(PlayGame);
+    _view.settingsButton.onClick.AddListener(() => _view.ShowSettings(true));
+    _view.closeSettingsButton.onClick.AddListener(() => _view.ShowSettings(false));
+    _view.volumeSlider.onValueChanged.AddListener(OnVolumeChanged);
+}
+
+private void PlayClick()
+{
+    // "Button_Click" — это должно быть названием файла в папке Resources/Sounds
+    _audioService.PlaySound("Button_Click");
+}
 
     private void PlayGame()
     {

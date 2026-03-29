@@ -44,7 +44,9 @@ public class GameBootstrapper : MonoBehaviour
         if (gameOverUI != null) gameOverUI.Construct(playerHealth.Core);
 
         // Теперь мы можем проиграть стартовый звук через сервис!
+        audio.PlayMusic("MainTheme");
         audio.PlaySound("Game_Start");
+        
     }
 
     private void OnDestroy()

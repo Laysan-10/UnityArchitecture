@@ -30,10 +30,14 @@ public class HealthCore
         if (CurrentHealth > 0)
         {
             OnDamaged?.Invoke(); 
+            // Звук получения урона (универсальный или через события)
+            ProjectBootstrapper.Instance.AudioService.PlaySound("Take_Damage");
         }
         else
         {
             OnDeath?.Invoke(); 
+            // Звук смерти
+            ProjectBootstrapper.Instance.AudioService.PlaySound("Death");
         }
     }
 }
