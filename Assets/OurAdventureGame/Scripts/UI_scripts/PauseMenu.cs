@@ -44,7 +44,7 @@ public class PauseMenu : MonoBehaviour
     public void LoadMenu()
     {
         Time.timeScale = 1f; // если выйдем, а потом зайдём будем иметь меню на паузе(нам это не нужно)
-        SceneManager.LoadScene("Menu");
+        SceneManager.LoadScene("MainMenu");
 
     }
 }

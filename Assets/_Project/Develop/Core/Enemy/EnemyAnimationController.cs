@@ -46,6 +46,18 @@ public class EnemyAnimationController : MonoBehaviour
         if (TryGetComponent<UnityEngine.AI.NavMeshAgent>(out var agent)) agent.enabled = false;
     }
 
+    public void ResetVisuals()
+    {
+        // 1. Возвращаем Аниматор в исходное состояние (Idle) и сбрасываем все триггеры
+        _animator.Rebind();
+        _animator.Update(0f);
+        
+        // 2. Включаем компоненты обратно (если они были выключены при смерти)
+        if (_ai != null) _ai.enabled = true;
+        if (TryGetComponent<UnityEngine.AI.NavMeshAgent>(out var agent)) agent.enabled = true;
+    }
+
+
     private void OnDestroy()
     {
         if (_healthCore != null)

@@ -10,4 +10,5 @@ public interface IInputService
     
     event Action OnPhysicalAttack;
     event Action OnMagicAttack;
+    event Action OnPausePressed;
 }

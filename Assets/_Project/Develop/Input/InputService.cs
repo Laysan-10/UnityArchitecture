@@ -12,12 +12,14 @@ public class InputService : IInputService
 
     public event Action OnPhysicalAttack;
     public event Action OnMagicAttack;
+    public event Action OnPausePressed;
 
     private readonly InputActionMap _playerActionMap;
     private readonly InputAction _moveAction;
     private readonly InputAction _sprintAction;
     private readonly InputAction _physAttackAction;
     private readonly InputAction _magicAttackAction;
+    private readonly InputAction _pauseAction;
     
     private readonly InputAction _mouseZoomAction;
 
@@ -37,6 +39,8 @@ public class InputService : IInputService
         _magicAttackAction = _playerActionMap.FindAction("Magic_attack");
         
         _mouseZoomAction = _playerActionMap.FindAction("MouseZoom");
+
+        _pauseAction = _playerActionMap.FindAction("Pause");
 
         if (_moveAction != null)
         {
@@ -64,6 +68,9 @@ public class InputService : IInputService
             _mouseZoomAction.canceled += ctx => 
                 ZoomInput = 0f;
         }
+
+        if (_pauseAction != null) _pauseAction.performed += _ => OnPausePressed?.Invoke();
+
     }
 
     public void Enable() => _playerActionMap?.Enable();

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent), typeof(EnemyAnimationController))]
-public class newEnemyAI : MonoBehaviour
+public class newEnemyAI : MonoBehaviour, ISaveable
 {
     public enum EnemyType { Melee, Ranged }
 
@@ -29,11 +29,16 @@ public class newEnemyAI : MonoBehaviour
     
     public bool IsRunning { get; private set; }
 
+    private EnemyId _enemyId;
+
+
     private void Start()
     {
         _agent = GetComponent<NavMeshAgent>();
         _animController = GetComponent<EnemyAnimationController>();
         _myHealth = GetComponent<HealthComponent>(); 
+        _enemyId = GetComponent<EnemyId>();
+
 
         if (_animController != null && _myHealth != null)
         {
@@ -124,5 +129,63 @@ public class newEnemyAI : MonoBehaviour
         direction.y = 0; 
         Quaternion lookRotation = Quaternion.LookRotation(direction);
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+    }
+
+    public void PopulateSaveData(SaveData saveData)
+    {
+        if (_enemyId == null) return;
+
+        // Создаем запись о себе
+        EnemySaveData myData = new EnemySaveData
+        {
+            Id = _enemyId.Id,
+            Position = transform.position,
+            CurrentHp = _myHealth.Core.CurrentHealth,
+            IsDead = _myHealth.Core.IsDead
+        };
+
+        saveData.EnemyStates.Add(myData);
+    }
+
+    public void LoadFromSaveData(SaveData saveData)
+    {
+        var enemyId = GetComponent<EnemyId>();
+        if (enemyId == null) return;
+
+        EnemySaveData myData = saveData.EnemyStates.Find(x => x.Id == enemyId.Id);
+        
+        if (myData != null)
+        {
+            if (myData.IsDead)
+            {
+                _myHealth.Core.RestoreHealth(0);
+                gameObject.SetActive(false);
+                return;
+            }
+
+            // 1. Оживляем сам объект врага
+            gameObject.SetActive(true);
+            
+            // --- ВОТ ЭТО НУЖНО ДОБАВИТЬ ---
+            // 2. Оживляем полоску здоровья, если она была выключена
+            if (enemyHealthBarUI != null)
+            {
+                enemyHealthBarUI.gameObject.SetActive(true);
+            }
+            // ------------------------------
+
+            // 3. Восстанавливаем здоровье
+            _myHealth.Core.RestoreHealth(myData.CurrentHp);
+
+            // 4. Восстанавливаем позицию
+            _agent.enabled = false;
+            transform.position = myData.Position;
+            _agent.enabled = true;
+            _agent.isStopped = false; 
+
+            // 5. Сбрасываем визуал
+            _animController.ResetVisuals();
+            _lastAttackTime = Time.time;
+        }
     }
 }

@@ -16,10 +16,16 @@ public class GameBootstrapper : MonoBehaviour
     [SerializeField] private MagicCooldownUI magicUI;
     [SerializeField] private HealthBarUI healthBarUI; 
     [SerializeField] private GameOverUI gameOverUI; 
+    
+    [Header("UI Pause Menu")]
+    [SerializeField] private PauseMenuView pauseMenuView;
+
 
 
     [Header("Camera Components")]
     [SerializeField] private ThirdPersonCameraController cameraController;
+    private PauseMenuController _pauseMenuController;
+
 
     private InputService _inputService;
 
@@ -27,7 +33,10 @@ public class GameBootstrapper : MonoBehaviour
     {
         // Запрашиваем глобальные сервисы у Entrypoint проекта
         var audio = ProjectBootstrapper.Instance.AudioService;
-        var save = ProjectBootstrapper.Instance.SaveLoadService;
+        var saveService = ProjectBootstrapper.Instance.SaveLoadService;
+
+        saveService.RegisterSaveable(playerMovement);
+        saveService.RegisterSaveable(playerHealth);
 
         // Инициализируем локальный ввод
         _inputService = new InputService(inputActionAsset);
@@ -45,6 +54,15 @@ public class GameBootstrapper : MonoBehaviour
 
         // Теперь мы можем проиграть стартовый звук через сервис!
         audio.PlaySound("Game_Start");
+
+        newEnemyAI[] allEnemies = FindObjectsByType<newEnemyAI>(FindObjectsSortMode.None);
+        foreach (var enemy in allEnemies)
+        {
+            saveService.RegisterSaveable(enemy);
+        }
+
+        _pauseMenuController = new PauseMenuController(pauseMenuView, new PauseMenuModel(), saveService, _inputService, playerHealth.Core);
+
     }
 
     private void OnDestroy()

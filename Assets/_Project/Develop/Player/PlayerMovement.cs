@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviour, ISaveable 
 {
     [Header("Speed settings")]
     public float walkSpeed = 3f;
@@ -73,4 +73,18 @@ public class PlayerMovement : MonoBehaviour
         _verticalVelocity += gravity * Time.deltaTime;
         _controller.Move(new Vector3(0, _verticalVelocity, 0) * Time.deltaTime);
     }
+
+    public void PopulateSaveData(SaveData saveData)
+    {
+        saveData.PlayerPosition = transform.position;
+    }
+
+    public void LoadFromSaveData(SaveData saveData)
+    {
+        // Отключаем контроллер перед телепортацией, иначе он может "вернуть" игрока назад
+        _controller.enabled = false;
+        transform.position = saveData.PlayerPosition;
+        _controller.enabled = true;
+    }
+
 }

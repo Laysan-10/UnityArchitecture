@@ -36,4 +36,11 @@ public class HealthCore
             OnDeath?.Invoke(); 
         }
     }
+
+    public void RestoreHealth(float amount)
+    {
+        CurrentHealth = Mathf.Clamp(amount, 0, MaxHealth);
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+    }
+
 }

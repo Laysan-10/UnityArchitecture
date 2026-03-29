@@ -33,7 +33,7 @@ public class ProjectBootstrapper : MonoBehaviour
         // Здесь мы решаем, КАКИЕ конкретно сервисы использовать.
         // Это и есть реализация принципа инверсии зависимостей.
         AudioService = new UnityAudioService();
-        SaveLoadService = new FileSaveLoadService();
+        SaveLoadService = new JsonSaveLoadService(); 
 
         Debug.Log("Глобальные сервисы инициализированы.");
     }
