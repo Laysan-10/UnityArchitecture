@@ -51,6 +51,7 @@ public class PlayerCombat : MonoBehaviour
     private void HandlePhysicalAttack()
     {
         OnAttackPhysFired?.Invoke();
+        ProjectBootstrapper.Instance.AudioService.PlaySound("Player_Swing");
 
         Collider[] hitEnemies = Physics.OverlapSphere(attackPoint.position, attackRange, enemyLayer);
 
@@ -60,6 +61,8 @@ public class PlayerCombat : MonoBehaviour
             {
                 damageable.TakeDamage(physDamage, 0);
                 Debug.Log($"Нанесен физический урон объекту {enemy.name}!");
+                // Звук попадания по врагу
+                ProjectBootstrapper.Instance.AudioService.PlaySound("Enemy_Hit");
             }
         }
     }
@@ -73,6 +76,7 @@ public class PlayerCombat : MonoBehaviour
         }
 
         OnAttackMagFired?.Invoke();
+        ProjectBootstrapper.Instance.AudioService.PlaySound("Magic_Cast");
 
         if (magicPrefab != null && firePoint != null)
         {
