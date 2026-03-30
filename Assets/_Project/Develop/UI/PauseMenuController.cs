@@ -7,7 +7,7 @@ public class PauseMenuController
     private readonly PauseMenuModel _model;
     private readonly ISaveLoadService _saveService;
     private readonly IInputService _inputService;
-    private readonly HealthCore _playerHealth; // Добавили ссылку на здоровье
+    private readonly HealthCore _playerHealth;
 
     public PauseMenuController(PauseMenuView view, PauseMenuModel model, ISaveLoadService saveService, IInputService inputService, HealthCore playerHealth)
     {
@@ -25,13 +25,11 @@ public class PauseMenuController
 
         _inputService.OnPausePressed += TogglePause;
         
-        // Подписываемся на смерть, чтобы закрыть паузу, если она была открыта
         _playerHealth.OnDeath += ForceClosePause;
     }
 
     private void TogglePause()
     {
-        // ЕСЛИ ИГРОК МЕРТВ — ПАУЗА НЕ ВКЛЮЧИТСЯ
         if (_playerHealth.IsDead) return;
 
         _model.IsPaused = !_model.IsPaused;
@@ -40,7 +38,6 @@ public class PauseMenuController
 
     private void ForceClosePause()
     {
-        // Закрываем меню паузы при смерти
         _model.IsPaused = false;
         UpdatePauseState();
     }
@@ -50,7 +47,6 @@ public class PauseMenuController
         _view.Show(_model.IsPaused);
         Time.timeScale = _model.IsPaused ? 0f : 1f;
 
-        // Важно: мы не трогаем курсор здесь, так как GameOverUI сам его включит
         if (!_playerHealth.IsDead)
         {
             Cursor.lockState = _model.IsPaused ? CursorLockMode.None : CursorLockMode.Locked;
@@ -63,7 +59,7 @@ public class PauseMenuController
 
     private void GoToMainMenu()
     {
-        Time.timeScale = 1f; // Сбрасываем паузу перед сменой сцены!
+        Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");
     }
 }

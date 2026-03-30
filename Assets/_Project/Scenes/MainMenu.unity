@@ -273,7 +273,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 509366531}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fec57688ed7891640a77916a530da206, type: 3}
+  m_Script: {fileID: 11500000, guid: 3e7e29850e1fab947b8a466751daafd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuBootstrapper
   _mainMenuView: {fileID: 1977136802}

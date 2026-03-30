@@ -37,6 +37,8 @@ public class ThirdPersonCameraController : MonoBehaviour
 
     private void Update()
     {
+        if (Time.timeScale <= 0) return;
+        
         if (_inputService == null || _orbital == null) return;
 
         float zoomDelta = _inputService.ZoomInput;

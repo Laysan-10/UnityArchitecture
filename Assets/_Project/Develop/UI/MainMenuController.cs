@@ -31,7 +31,6 @@ public MainMenuController(MainMenuView view, SettingsModel model, IAudioService 
 
 private void PlayClick()
 {
-    // "Button_Click" — это должно быть названием файла в папке Resources/Sounds
     _audioService.PlaySound("Button_Click");
 }
 

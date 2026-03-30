@@ -10,10 +10,13 @@ public class GameOverUI : MonoBehaviour
     [SerializeField] private Button exitButton;
 
     private HealthCore _playerHealth;
+    private InputService _inputService;
 
-    public void Construct(HealthCore core)
+
+    public void Construct(HealthCore core, InputService inputService)
     {
         _playerHealth = core;
+        _inputService = inputService;
         _playerHealth.OnDeath += HandleDeath;
 
         restartButton.onClick.AddListener(RestartGame);
@@ -24,10 +27,13 @@ public class GameOverUI : MonoBehaviour
 
     private void HandleDeath()
     {
+        _inputService.Disable();
         Debug.Log("UI: Событие смерти получено! Показываю меню.");
         deathMenuRoot.SetActive(true);
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+        Time.timeScale = 0f; 
+        ProjectBootstrapper.Instance.AudioService.StopMusic();
     }
 
     private void RestartGame()

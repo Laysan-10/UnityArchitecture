@@ -58,10 +58,12 @@ public class newEnemyAI : MonoBehaviour, ISaveable
 
     private void Update()
     {
-        if (targetTransform == null || (_myHealth != null && _myHealth.Core.IsDead)) 
+        bool isTargetAlive = _targetDamageable != null && _targetDamageable.IsAlive;
+
+        if (targetTransform == null || (_myHealth != null && _myHealth.Core.IsDead) || !isTargetAlive) 
         {
             IsRunning = false;
-            _agent.isStopped = true;
+            if (_agent.isActiveAndEnabled) _agent.isStopped = true;
             return;
         }
 
@@ -113,7 +115,6 @@ public class newEnemyAI : MonoBehaviour, ISaveable
         }
         else if (type == EnemyType.Ranged)
         {
-            // Звук выстрела врага
             ProjectBootstrapper.Instance.AudioService.PlaySound("Enemy_Attack_Ranged");
             if (magicPrefab != null && firePoint != null)
             {
@@ -140,7 +141,6 @@ public class newEnemyAI : MonoBehaviour, ISaveable
     {
         if (_enemyId == null) return;
 
-        // Создаем запись о себе
         EnemySaveData myData = new EnemySaveData
         {
             Id = _enemyId.Id,
@@ -171,15 +171,13 @@ public class newEnemyAI : MonoBehaviour, ISaveable
             // 1. Оживляем сам объект врага
             gameObject.SetActive(true);
             
-            // --- ВОТ ЭТО НУЖНО ДОБАВИТЬ ---
-            // 2. Оживляем полоску здоровья, если она была выключена
+            // 2. Оживляем полоску здоровья
             if (enemyHealthBarUI != null)
             {
                 enemyHealthBarUI.gameObject.SetActive(true);
             }
-            // ------------------------------
 
-            // 3. Восстанавливаем здоровье
+            // 3. Восстанавливаем здоровеь
             _myHealth.Core.RestoreHealth(myData.CurrentHp);
 
             // 4. Восстанавливаем позицию
@@ -191,6 +189,14 @@ public class newEnemyAI : MonoBehaviour, ISaveable
             // 5. Сбрасываем визуал
             _animController.ResetVisuals();
             _lastAttackTime = Time.time;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (ProjectBootstrapper.Instance != null && ProjectBootstrapper.Instance.SaveLoadService != null)
+        {
+            ProjectBootstrapper.Instance.SaveLoadService.UnregisterSaveable(this);
         }
     }
 }
