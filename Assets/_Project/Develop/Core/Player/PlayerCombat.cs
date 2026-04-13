@@ -6,19 +6,19 @@ public class PlayerCombat : MonoBehaviour
     [Header("Physical Attack Settings")]
     [SerializeField] private float physDamage = 25f;
     [SerializeField] private float attackRange = 1.5f;
-    [SerializeField] private Transform attackPoint; 
-    [SerializeField] private LayerMask enemyLayer; 
+    [SerializeField] private Transform attackPoint;
+    [SerializeField] private LayerMask enemyLayer;
 
     [Header("Magic Attack Settings")]
     [SerializeField] private float magicDamage = 40f;
     [SerializeField] private GameObject magicPrefab;
-    [SerializeField] private Transform firePoint; 
+    [SerializeField] private Transform firePoint;
     [SerializeField] private float magicCooldown = 5f;
 
     private IInputService _inputService;
+    private IAudioService _audioService;
     private float _magicCooldownTimer;
     private HealthComponent _playerHealth;
-
 
     public bool IsMagicReady => _magicCooldownTimer <= 0;
 
@@ -26,13 +26,14 @@ public class PlayerCombat : MonoBehaviour
     public event Action OnAttackMagFired;
 
     public event Action OnMagicCooldownStarted;
-    public event Action<float> OnMagicCooldownTick; 
+    public event Action<float> OnMagicCooldownTick;
     public event Action OnMagicCooldownFinished;
 
-    public void Construct(IInputService inputService, HealthComponent health)
+    public void Construct(IInputService inputService, HealthComponent health, IAudioService audioService)
     {
         _inputService = inputService;
         _playerHealth = health;
+        _audioService = audioService;
         _inputService.OnPhysicalAttack += HandlePhysicalAttack;
         _inputService.OnMagicAttack += HandleMagicAttack;
     }
@@ -60,7 +61,7 @@ public class PlayerCombat : MonoBehaviour
         if (Time.timeScale <= 0 || (_playerHealth != null && !_playerHealth.IsAlive)) return;
 
         OnAttackPhysFired?.Invoke();
-        ProjectBootstrapper.Instance.AudioService.PlaySound("Player_Swing");
+        _audioService?.PlaySound("Player_Swing");
 
         Collider[] hitEnemies = Physics.OverlapSphere(attackPoint.position, attackRange, enemyLayer);
 
@@ -69,9 +70,8 @@ public class PlayerCombat : MonoBehaviour
             if (enemy.TryGetComponent<IDamageable>(out var damageable))
             {
                 damageable.TakeDamage(physDamage, 0);
-                Debug.Log($"Нанесен физический урон объекту {enemy.name}!");
-                // Звук попадания по врагу
-                ProjectBootstrapper.Instance.AudioService.PlaySound("Enemy_Hit");
+                Debug.Log($"Dealt physical damage to {enemy.name}.");
+                _audioService?.PlaySound("Enemy_Hit");
             }
         }
     }
@@ -82,20 +82,20 @@ public class PlayerCombat : MonoBehaviour
 
         if (!IsMagicReady)
         {
-            Debug.Log("Магия на кулдауне!");
+            Debug.Log("Magic is on cooldown.");
             return;
         }
 
         OnAttackMagFired?.Invoke();
-        ProjectBootstrapper.Instance.AudioService.PlaySound("Magic_Cast");
+        _audioService?.PlaySound("Magic_Cast");
 
         if (magicPrefab != null && firePoint != null)
         {
             GameObject fireball = Instantiate(magicPrefab, firePoint.position, firePoint.rotation);
-            
+
             if (fireball.TryGetComponent<MagicProjectile>(out var projectile))
             {
-                projectile.Setup(magicDamage, true); 
+                projectile.Setup(magicDamage, true);
             }
         }
 

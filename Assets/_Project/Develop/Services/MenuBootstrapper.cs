@@ -1,20 +1,27 @@
 using UnityEngine;
 
-public class MenuBootstrapper : MonoBehaviour
+public class MenuBootstrapper : MonoBehaviour, ISceneBootstrapper
 {
     [SerializeField] private MainMenuView _mainMenuView;
 
     private MainMenuController _menuController;
+    private bool _isInitialized;
 
-    private void Start()
+    public void Initialize(ProjectContext projectContext)
     {
-        IAudioService audioService = ProjectBootstrapper.Instance.AudioService;
+        if (_isInitialized)
+        {
+            return;
+        }
 
+        _isInitialized = true;
+
+        IAudioService audioService = projectContext.AudioService;
         SettingsModel settingsModel = new SettingsModel();
 
         _menuController = new MainMenuController(_mainMenuView, settingsModel, audioService);
-    
-        audioService.PlayMusic("Menu"); 
+
+        audioService.PlayMusic("Menu");
 
         Debug.Log("Scene Entrypoint (Menu): MVC собран и запущен.");
     }

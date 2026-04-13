@@ -3,13 +3,15 @@ using UnityEngine;
 
 public class HealthCore
 {
+    private IAudioService _audioService;
+
     public float MaxHealth { get; private set; }
     public float CurrentHealth { get; private set; }
     public bool IsDead => CurrentHealth <= 0;
 
-    public event Action<float, float> OnHealthChanged; 
-    public event Action OnDamaged; 
-    public event Action OnDeath; 
+    public event Action<float, float> OnHealthChanged;
+    public event Action OnDamaged;
+    public event Action OnDeath;
 
     public HealthCore(float maxHealth)
     {
@@ -17,25 +19,30 @@ public class HealthCore
         CurrentHealth = maxHealth;
     }
 
+    public void SetAudioService(IAudioService audioService)
+    {
+        _audioService = audioService;
+    }
+
     public void ApplyDamage(float physical, float magic)
     {
         if (IsDead) return;
 
         float totalDamage = physical + magic;
-        
+
         CurrentHealth = Mathf.Clamp(CurrentHealth - totalDamage, 0, MaxHealth);
-        
+
         OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
 
         if (CurrentHealth > 0)
         {
-            OnDamaged?.Invoke(); 
-            ProjectBootstrapper.Instance.AudioService.PlaySound("Take_Damage");
+            OnDamaged?.Invoke();
+            _audioService?.PlaySound("Take_Damage");
         }
         else
         {
-            OnDeath?.Invoke(); 
-            ProjectBootstrapper.Instance.AudioService.PlaySound("Death");
+            OnDeath?.Invoke();
+            _audioService?.PlaySound("Death");
         }
     }
 
@@ -44,5 +51,4 @@ public class HealthCore
         CurrentHealth = Mathf.Clamp(amount, 0, MaxHealth);
         OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
     }
-
 }

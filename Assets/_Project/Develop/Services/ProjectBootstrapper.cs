@@ -3,32 +3,57 @@ using UnityEngine.SceneManagement;
 
 public class ProjectBootstrapper : MonoBehaviour
 {
-    public static ProjectBootstrapper Instance { get; private set; }
+    private static ProjectBootstrapper _instance;
 
-    public IAudioService AudioService { get; private set; }
-    public ISaveLoadService SaveLoadService { get; private set; }
+    private IAudioService _audioService;
+    private ISaveLoadService _saveLoadService;
+
+    private ProjectContext _projectContext;
 
     private void Awake()
     {
-        if (Instance != null)
+        if (_instance != null)
         {
             Destroy(gameObject);
             return;
         }
 
-        Instance = this;
+        _instance = this;
         DontDestroyOnLoad(gameObject);
 
         InitializeServices();
-        
+        SceneManager.sceneLoaded += OnSceneLoaded;
+
         SceneManager.LoadScene("MainMenu");
+    }
+
+    private void OnDestroy()
+    {
+        if (_instance == this)
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            _instance = null;
+        }
     }
 
     private void InitializeServices()
     {
-        AudioService = new UnityAudioService();
-        SaveLoadService = new JsonSaveLoadService(); 
+        _audioService = new UnityAudioService();
+        _saveLoadService = new JsonSaveLoadService();
+        _projectContext = new ProjectContext(_audioService, _saveLoadService);
 
         Debug.Log("Глобальные сервисы инициализированы.");
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        MonoBehaviour[] behaviours = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
+        foreach (var behaviour in behaviours)
+        {
+            if (behaviour is ISceneBootstrapper sceneBootstrapper)
+            {
+                sceneBootstrapper.Initialize(_projectContext);
+            }
+        }
     }
 }

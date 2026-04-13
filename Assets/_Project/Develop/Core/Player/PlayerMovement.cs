@@ -87,13 +87,4 @@ public class PlayerMovement : MonoBehaviour, ISaveable
         transform.position = saveData.PlayerPosition;
         _controller.enabled = true;
     }
-
-    private void OnDestroy()
-    {
-        if (ProjectBootstrapper.Instance != null && ProjectBootstrapper.Instance.SaveLoadService != null)
-        {
-            ProjectBootstrapper.Instance.SaveLoadService.UnregisterSaveable(this);
-        }
-    }
-
 }

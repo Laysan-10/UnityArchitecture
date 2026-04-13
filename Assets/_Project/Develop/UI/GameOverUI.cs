@@ -1,22 +1,22 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using TMPro;
 
 public class GameOverUI : MonoBehaviour
 {
-    [SerializeField] private GameObject deathMenuRoot; 
+    [SerializeField] private GameObject deathMenuRoot;
     [SerializeField] private Button restartButton;
     [SerializeField] private Button exitButton;
 
     private HealthCore _playerHealth;
     private InputService _inputService;
+    private IAudioService _audioService;
 
-
-    public void Construct(HealthCore core, InputService inputService)
+    public void Construct(HealthCore core, InputService inputService, IAudioService audioService)
     {
         _playerHealth = core;
         _inputService = inputService;
+        _audioService = audioService;
         _playerHealth.OnDeath += HandleDeath;
 
         restartButton.onClick.AddListener(RestartGame);
@@ -28,12 +28,12 @@ public class GameOverUI : MonoBehaviour
     private void HandleDeath()
     {
         _inputService.Disable();
-        Debug.Log("UI: Событие смерти получено! Показываю меню.");
+        Debug.Log("UI: player death received, showing game over menu.");
         deathMenuRoot.SetActive(true);
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-        Time.timeScale = 0f; 
-        ProjectBootstrapper.Instance.AudioService.StopMusic();
+        Time.timeScale = 0f;
+        _audioService?.StopMusic();
     }
 
     private void RestartGame()
@@ -43,7 +43,7 @@ public class GameOverUI : MonoBehaviour
 
     private void ExitGame()
     {
-        Debug.Log("Выход из игры...");
+        Debug.Log("Exiting game...");
         Application.Quit();
     }
 

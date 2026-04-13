@@ -1,7 +1,8 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class GameBootstrapper : MonoBehaviour
+public class GameBootstrapper : MonoBehaviour, ISceneBootstrapper
 {
     [Header("Settings")]
     [SerializeField] private InputActionAsset inputActionAsset;
@@ -14,57 +15,83 @@ public class GameBootstrapper : MonoBehaviour
 
     [Header("UI Components")]
     [SerializeField] private MagicCooldownUI magicUI;
-    [SerializeField] private HealthBarUI healthBarUI; 
-    [SerializeField] private GameOverUI gameOverUI; 
-    
+    [SerializeField] private HealthBarUI healthBarUI;
+    [SerializeField] private GameOverUI gameOverUI;
+
     [Header("UI Pause Menu")]
     [SerializeField] private PauseMenuView pauseMenuView;
 
-
-
     [Header("Camera Components")]
     [SerializeField] private ThirdPersonCameraController cameraController;
+
     private PauseMenuController _pauseMenuController;
-
-
     private InputService _inputService;
+    private readonly List<ISaveable> _registeredSaveables = new();
+    private ISaveLoadService _saveLoadService;
+    private bool _isInitialized;
 
-    private void Start()
+    public void Initialize(ProjectContext projectContext)
     {
-        // Запрашиваем глобальные сервисы у Entrypoint проекта
-        var audio = ProjectBootstrapper.Instance.AudioService;
-        var saveService = ProjectBootstrapper.Instance.SaveLoadService;
+        if (_isInitialized)
+        {
+            return;
+        }
 
-        saveService.RegisterSaveable(playerMovement);
-        saveService.RegisterSaveable(playerHealth);
+        _isInitialized = true;
+
+        IAudioService audioService = projectContext.AudioService;
+        _saveLoadService = projectContext.SaveLoadService;
 
         _inputService = new InputService(inputActionAsset);
         _inputService.Enable();
 
         playerMovement.Construct(_inputService);
-        playerCombat.Construct(_inputService, playerHealth);
+        playerHealth.Construct(audioService);
+        playerCombat.Construct(_inputService, playerHealth, audioService);
         playerAnimation.Construct(playerMovement, playerCombat, playerHealth);
-        
+
         if (cameraController != null) cameraController.Construct(_inputService);
         if (magicUI != null) magicUI.Construct(playerCombat);
         if (healthBarUI != null) healthBarUI.Construct(playerHealth.Core);
-        if (gameOverUI != null) gameOverUI.Construct(playerHealth.Core, _inputService);
+        if (gameOverUI != null) gameOverUI.Construct(playerHealth.Core, _inputService, audioService);
 
-        audio.PlayMusic("MainTheme");
-        audio.PlaySound("Game_Start");
+        audioService.PlayMusic("MainTheme");
+        audioService.PlaySound("Game_Start");
+
+        RegisterSaveable(playerMovement);
+        RegisterSaveable(playerHealth);
 
         newEnemyAI[] allEnemies = FindObjectsByType<newEnemyAI>(FindObjectsSortMode.None);
         foreach (var enemy in allEnemies)
         {
-            saveService.RegisterSaveable(enemy);
+            enemy.Construct(audioService);
+            RegisterSaveable(enemy);
         }
 
-        _pauseMenuController = new PauseMenuController(pauseMenuView, new PauseMenuModel(), saveService, _inputService, playerHealth.Core);
+        _pauseMenuController = new PauseMenuController(
+            pauseMenuView,
+            new PauseMenuModel(),
+            _saveLoadService,
+            _inputService,
+            playerHealth.Core);
+    }
 
+    private void RegisterSaveable(ISaveable saveable)
+    {
+        _saveLoadService.RegisterSaveable(saveable);
+        _registeredSaveables.Add(saveable);
     }
 
     private void OnDestroy()
     {
+        if (_saveLoadService != null)
+        {
+            foreach (var saveable in _registeredSaveables)
+            {
+                _saveLoadService.UnregisterSaveable(saveable);
+            }
+        }
+
         _inputService?.Disable();
     }
 }
