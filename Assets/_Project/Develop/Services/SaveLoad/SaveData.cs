@@ -3,27 +3,34 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
+public class PlayerSaveData
+{
+    public Vector3 Position;
+    public float CurrentHealth;
+}
+
+[Serializable]
 public class EnemySaveData
 {
-    public string Id;          // Уникальный номер врага на сцене
-    public Vector3 Position;   // Где стоял
-    public float CurrentHp;    // Сколько здоровья осталось
-    public bool IsDead;        // Жив или уже исчез
+    public string Id;
+    public Vector3 Position;
+    public float CurrentHp;
+    public bool IsDead;
 }
 
 [Serializable]
 public class SaveData
 {
-    public float PlayerHealth;
-    public Vector3 PlayerPosition;
-
-    // Список состояний всех врагов
+    public PlayerSaveData Player = new PlayerSaveData();
     public List<EnemySaveData> EnemyStates = new List<EnemySaveData>();
 
     public SaveData()
     {
-        PlayerHealth = 100f;
-        PlayerPosition = Vector3.zero;
+        Player = new PlayerSaveData
+        {
+            Position = Vector3.zero,
+            CurrentHealth = 100f
+        };
         EnemyStates = new List<EnemySaveData>();
     }
 }

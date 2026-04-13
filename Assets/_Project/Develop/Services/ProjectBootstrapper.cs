@@ -39,16 +39,30 @@ public class ProjectBootstrapper : MonoBehaviour
     private void InitializeServices()
     {
         _audioService = new UnityAudioService();
-        _saveLoadService = new JsonSaveLoadService();
+
+        IPlayerSaveRepository playerRepository = new PlayerSaveRepository();
+        IEnemySaveRepository enemyRepository = new EnemySaveRepository();
+        ISaveDataRepository saveDataRepository = new JsonSaveDataRepository();
+        SaveGameInteractor saveInteractor =
+            new SaveGameInteractor(playerRepository, enemyRepository, saveDataRepository);
+        LoadGameInteractor loadInteractor =
+            new LoadGameInteractor(playerRepository, enemyRepository, saveDataRepository);
+
+        _saveLoadService = new SaveLoadService(
+            playerRepository,
+            enemyRepository,
+            saveInteractor,
+            loadInteractor);
+
         _projectContext = new ProjectContext(_audioService, _saveLoadService);
 
-        Debug.Log("Глобальные сервисы инициализированы.");
+        Debug.Log("Global services initialized.");
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         MonoBehaviour[] behaviours = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
-        foreach (var behaviour in behaviours)
+        foreach (MonoBehaviour behaviour in behaviours)
         {
             if (behaviour is ISceneBootstrapper sceneBootstrapper)
             {

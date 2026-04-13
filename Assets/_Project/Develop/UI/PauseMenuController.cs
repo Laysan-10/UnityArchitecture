@@ -54,12 +54,27 @@ public class PauseMenuController
         }
     }
     
-    private void SaveGame() => _saveService.Save();
-    private void LoadGame() => _saveService.Load();
+    private void SaveGame()
+    {
+        _saveService.Save();
+        ClosePauseMenu();
+    }
+
+    private void LoadGame()
+    {
+        _saveService.Load();
+        ClosePauseMenu();
+    }
 
     private void GoToMainMenu()
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");
+    }
+
+    private void ClosePauseMenu()
+    {
+        _model.IsPaused = false;
+        UpdatePauseState();
     }
 }

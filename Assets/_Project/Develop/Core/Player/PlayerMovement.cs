@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerMovement : MonoBehaviour, ISaveable 
+public class PlayerMovement : MonoBehaviour
 {
     [Header("Speed settings")]
     public float walkSpeed = 3f;
@@ -37,7 +37,6 @@ public class PlayerMovement : MonoBehaviour, ISaveable
         HandleMovement();
         ApplyGravity();
         if (Input.GetKeyDown(KeyCode.K)) GetComponent<IDamageable>().TakeDamage(20, 0);
-
     }
 
     private void HandleMovement()
@@ -76,15 +75,15 @@ public class PlayerMovement : MonoBehaviour, ISaveable
         _controller.Move(new Vector3(0, _verticalVelocity, 0) * Time.deltaTime);
     }
 
-    public void PopulateSaveData(SaveData saveData)
+    public Vector3 CapturePosition()
     {
-        saveData.PlayerPosition = transform.position;
+        return transform.position;
     }
 
-    public void LoadFromSaveData(SaveData saveData)
+    public void RestorePosition(Vector3 position)
     {
         _controller.enabled = false;
-        transform.position = saveData.PlayerPosition;
+        transform.position = position;
         _controller.enabled = true;
     }
 }

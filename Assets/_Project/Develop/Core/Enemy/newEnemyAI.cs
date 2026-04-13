@@ -1,8 +1,9 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent), typeof(EnemyAnimationController))]
-public class newEnemyAI : MonoBehaviour, ISaveable
+public class newEnemyAI : MonoBehaviour
 {
     public enum EnemyType { Melee, Ranged }
 
@@ -27,10 +28,9 @@ public class newEnemyAI : MonoBehaviour, ISaveable
     private IAudioService _audioService;
     private IDamageable _targetDamageable;
     private float _lastAttackTime;
+    private EnemyId _enemyId;
 
     public bool IsRunning { get; private set; }
-
-    private EnemyId _enemyId;
 
     public void Construct(IAudioService audioService)
     {
@@ -147,53 +147,96 @@ public class newEnemyAI : MonoBehaviour, ISaveable
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
     }
 
-    public void PopulateSaveData(SaveData saveData)
+    public EnemySaveData CaptureState()
     {
-        if (_enemyId == null) return;
+        if (_enemyId == null)
+        {
+            _enemyId = GetComponent<EnemyId>();
+        }
 
-        EnemySaveData myData = new EnemySaveData
+        if (_myHealth == null)
+        {
+            _myHealth = GetComponent<HealthComponent>();
+        }
+
+        if (_enemyId == null || _myHealth == null)
+        {
+            return null;
+        }
+
+        return new EnemySaveData
         {
             Id = _enemyId.Id,
             Position = transform.position,
             CurrentHp = _myHealth.Core.CurrentHealth,
             IsDead = _myHealth.Core.IsDead
         };
-
-        saveData.EnemyStates.Add(myData);
     }
 
-    public void LoadFromSaveData(SaveData saveData)
+    public void RestoreState(IReadOnlyList<EnemySaveData> enemyStates)
     {
-        var enemyId = GetComponent<EnemyId>();
-        if (enemyId == null) return;
-
-        EnemySaveData myData = saveData.EnemyStates.Find(x => x.Id == enemyId.Id);
-
-        if (myData != null)
+        if (_enemyId == null)
         {
-            if (myData.IsDead)
-            {
-                _myHealth.Core.RestoreHealth(0);
-                gameObject.SetActive(false);
-                return;
-            }
-
-            gameObject.SetActive(true);
-
-            if (enemyHealthBarUI != null)
-            {
-                enemyHealthBarUI.gameObject.SetActive(true);
-            }
-
-            _myHealth.Core.RestoreHealth(myData.CurrentHp);
-
-            _agent.enabled = false;
-            transform.position = myData.Position;
-            _agent.enabled = true;
-            _agent.isStopped = false;
-
-            _animController.ResetVisuals();
-            _lastAttackTime = Time.time;
+            _enemyId = GetComponent<EnemyId>();
         }
+
+        if (_myHealth == null)
+        {
+            _myHealth = GetComponent<HealthComponent>();
+        }
+
+        if (_agent == null)
+        {
+            _agent = GetComponent<NavMeshAgent>();
+        }
+
+        if (_animController == null)
+        {
+            _animController = GetComponent<EnemyAnimationController>();
+        }
+
+        if (_enemyId == null || _myHealth == null || _agent == null || _animController == null)
+        {
+            return;
+        }
+
+        EnemySaveData myData = null;
+        foreach (EnemySaveData enemyState in enemyStates)
+        {
+            if (enemyState.Id == _enemyId.Id)
+            {
+                myData = enemyState;
+                break;
+            }
+        }
+
+        if (myData == null)
+        {
+            return;
+        }
+
+        if (myData.IsDead)
+        {
+            _myHealth.Core.RestoreHealth(0);
+            gameObject.SetActive(false);
+            return;
+        }
+
+        gameObject.SetActive(true);
+
+        if (enemyHealthBarUI != null)
+        {
+            enemyHealthBarUI.gameObject.SetActive(true);
+        }
+
+        _myHealth.Core.RestoreHealth(myData.CurrentHp);
+
+        _agent.enabled = false;
+        transform.position = myData.Position;
+        _agent.enabled = true;
+        _agent.isStopped = false;
+
+        _animController.ResetVisuals();
+        _lastAttackTime = Time.time;
     }
 }

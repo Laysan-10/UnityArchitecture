@@ -2,7 +2,9 @@ public interface ISaveLoadService
 {
     void Save();
     void Load();
-    
-   void RegisterSaveable(ISaveable saveable);
-   void UnregisterSaveable(ISaveable saveable);
+    void BindPlayer(PlayerMovement playerMovement, HealthComponent playerHealth);
+    void ClearPlayer();
+    void RegisterEnemy(newEnemyAI enemy);
+    void UnregisterEnemy(newEnemyAI enemy);
+    void ClearEnemies();
 }

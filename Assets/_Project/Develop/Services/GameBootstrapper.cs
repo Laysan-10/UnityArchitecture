@@ -26,7 +26,7 @@ public class GameBootstrapper : MonoBehaviour, ISceneBootstrapper
 
     private PauseMenuController _pauseMenuController;
     private InputService _inputService;
-    private readonly List<ISaveable> _registeredSaveables = new();
+    private readonly List<newEnemyAI> _registeredEnemies = new();
     private ISaveLoadService _saveLoadService;
     private bool _isInitialized;
 
@@ -58,14 +58,13 @@ public class GameBootstrapper : MonoBehaviour, ISceneBootstrapper
         audioService.PlayMusic("MainTheme");
         audioService.PlaySound("Game_Start");
 
-        RegisterSaveable(playerMovement);
-        RegisterSaveable(playerHealth);
+        _saveLoadService.BindPlayer(playerMovement, playerHealth);
 
         newEnemyAI[] allEnemies = FindObjectsByType<newEnemyAI>(FindObjectsSortMode.None);
-        foreach (var enemy in allEnemies)
+        foreach (newEnemyAI enemy in allEnemies)
         {
             enemy.Construct(audioService);
-            RegisterSaveable(enemy);
+            RegisterEnemy(enemy);
         }
 
         _pauseMenuController = new PauseMenuController(
@@ -76,20 +75,23 @@ public class GameBootstrapper : MonoBehaviour, ISceneBootstrapper
             playerHealth.Core);
     }
 
-    private void RegisterSaveable(ISaveable saveable)
+    private void RegisterEnemy(newEnemyAI enemy)
     {
-        _saveLoadService.RegisterSaveable(saveable);
-        _registeredSaveables.Add(saveable);
+        _saveLoadService.RegisterEnemy(enemy);
+        _registeredEnemies.Add(enemy);
     }
 
     private void OnDestroy()
     {
         if (_saveLoadService != null)
         {
-            foreach (var saveable in _registeredSaveables)
+            foreach (newEnemyAI enemy in _registeredEnemies)
             {
-                _saveLoadService.UnregisterSaveable(saveable);
+                _saveLoadService.UnregisterEnemy(enemy);
             }
+
+            _saveLoadService.ClearPlayer();
+            _saveLoadService.ClearEnemies();
         }
 
         _inputService?.Disable();
