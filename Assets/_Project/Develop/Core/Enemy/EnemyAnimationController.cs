@@ -38,6 +38,7 @@ public class EnemyAnimationController : MonoBehaviour
 
     public void PlayAttack() => _animator.SetTrigger(IsAttackHash);
     private void PlayHit() => _animator.SetTrigger(HitHash);
+    public void SetRunning(bool value) => _animator.SetBool(IsRunHash, value);
     
     private void PlayDead() 
     {
