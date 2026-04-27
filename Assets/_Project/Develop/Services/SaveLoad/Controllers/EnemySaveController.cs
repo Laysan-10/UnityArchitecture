@@ -3,12 +3,12 @@ using UnityEngine;
 
 public class EnemySaveController
 {
-    private readonly List<newEnemyAI> _enemies;
+    private readonly List<EnemyAgent> _enemies;
     private readonly List<EnemySaveData> _defaultEnemyStates;
 
-    public EnemySaveController(IEnumerable<newEnemyAI> enemies)
+    public EnemySaveController(IEnumerable<EnemyAgent> enemies)
     {
-        _enemies = new List<newEnemyAI>();
+        _enemies = new List<EnemyAgent>();
         _defaultEnemyStates = new List<EnemySaveData>();
 
         if (enemies == null)
@@ -16,7 +16,7 @@ public class EnemySaveController
             return;
         }
 
-        foreach (newEnemyAI enemy in enemies)
+        foreach (EnemyAgent enemy in enemies)
         {
             if (enemy == null)
             {
@@ -37,7 +37,7 @@ public class EnemySaveController
     {
         List<EnemySaveData> enemyStates = new List<EnemySaveData>();
 
-        foreach (newEnemyAI enemy in _enemies)
+        foreach (EnemyAgent enemy in _enemies)
         {
             if (enemy == null)
             {
@@ -61,7 +61,7 @@ public class EnemySaveController
             return;
         }
 
-        foreach (newEnemyAI enemy in _enemies)
+        foreach (EnemyAgent enemy in _enemies)
         {
             if (enemy != null)
             {

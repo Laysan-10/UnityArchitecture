@@ -1,51 +1,66 @@
 using UnityEngine;
 
-public class AggressiveState : IState
+public class AggressiveState : EnemyStateBase
 {
-    private readonly EnemyBase _e;
-
-    public AggressiveState(EnemyBase e) => _e = e;
-
-    public void Enter()
+    public AggressiveState(EnemyBase enemy) : base(enemy)
     {
-        _e.agent.isStopped = false;
     }
 
-    public void Update()
+    public override EnemyStateType StateType => EnemyStateType.Aggressive;
+
+    public override void Enter()
     {
-        if (_e.target == null)
+        base.Enter();
+        Enemy.agent.isStopped = false;
+    }
+
+    public override void Update()
+    {
+        if (Enemy.target == null)
         {
-            _e.StateMachine.ChangeState(new IdleState(_e));
+            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Idle));
             return;
         }
 
-        if (_e.ShouldFlee())
+        if (Enemy.ShouldAbortCombat())
         {
-            _e.StateMachine.ChangeState(new FleeState(_e));
+            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Idle));
             return;
         }
 
-        _e.agent.SetDestination(_e.target.position);
-        _e.anim?.SetRunning(true);
-
-        float dist = _e.GetFlatDistanceToTarget();
-        bool reachedTarget = !_e.agent.pathPending &&
-            _e.agent.remainingDistance <= _e.GetCombatDistance() + 0.05f;
-
-        if (reachedTarget || dist <= _e.GetCombatDistance())
+        if (Enemy.ShouldEnterEnragedState())
         {
-            _e.StateMachine.ChangeState(new AttackState(_e));
+            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Enraged));
             return;
         }
 
-        if (dist > _e.lookRadius)
+        if (Enemy.ShouldRetreat())
         {
-            _e.StateMachine.ChangeState(new IdleState(_e));
+            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Flee));
+            return;
+        }
+
+        Enemy.agent.SetDestination(Enemy.target.position);
+        Enemy.anim?.SetRunning(true);
+
+        float dist = Enemy.GetFlatDistanceToTarget();
+        bool reachedTarget = !Enemy.agent.pathPending &&
+            Enemy.agent.remainingDistance <= Enemy.GetCombatDistance() + 0.05f;
+
+        if (reachedTarget || dist <= Enemy.GetCombatDistance())
+        {
+            Enemy.StateMachine.ChangeState(Enemy.CreateState(Enemy.ChooseAttackStateType()));
+            return;
+        }
+
+        if (dist > Enemy.lookRadius)
+        {
+            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Search));
         }
     }
 
-    public void Exit()
+    public override void Exit()
     {
-        _e.anim?.SetRunning(false);
+        Enemy.anim?.SetRunning(false);
     }
 }

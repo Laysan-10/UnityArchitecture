@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent), typeof(EnemyAnimationController))]
-public class newEnemyAI : EnemyBase
+public class EnemyAgent : EnemyBase
 {
     public enum EnemyType
     {
@@ -183,7 +183,8 @@ public class newEnemyAI : EnemyBase
         agent.isStopped = false;
 
         anim.ResetVisuals();
+        ResetBehaviorState();
         StateMachine = new EnemyStateMachine();
-        StateMachine.ChangeState(new IdleState(this));
+        StateMachine.ChangeState(CreateState(EnemyStateType.Idle));
     }
 }

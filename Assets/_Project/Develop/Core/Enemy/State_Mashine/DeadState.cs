@@ -1,25 +1,25 @@
-public class DeadState : IState
+public class DeadState : EnemyStateBase
 {
-    private readonly EnemyBase _e;
-
-    public DeadState(EnemyBase e) => _e = e;
-
-    public void Enter()
+    public DeadState(EnemyBase enemy) : base(enemy)
     {
-        if (_e.agent != null && _e.agent.enabled)
+    }
+
+    public override EnemyStateType StateType => EnemyStateType.Dead;
+
+    public override void Enter()
+    {
+        base.Enter();
+
+        if (Enemy.agent != null && Enemy.agent.enabled)
         {
-            _e.agent.enabled = false;
+            Enemy.agent.enabled = false;
         }
 
-        _e.anim?.PlayDead();
-        _e.enabled = false;
+        Enemy.anim?.PlayDead();
+        Enemy.enabled = false;
     }
 
-    public void Update()
-    {
-    }
-
-    public void Exit()
+    public override void Update()
     {
     }
 }

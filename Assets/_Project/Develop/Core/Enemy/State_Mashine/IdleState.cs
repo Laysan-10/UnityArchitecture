@@ -1,37 +1,42 @@
 using UnityEngine;
 
-public class IdleState : IState
+public class IdleState : EnemyStateBase
 {
-    private readonly EnemyBase _e;
-
-    public IdleState(EnemyBase e) => _e = e;
-
-    public void Enter()
+    public IdleState(EnemyBase enemy) : base(enemy)
     {
-        _e.agent.isStopped = true;
-        _e.anim?.SetRunning(false);
     }
 
-    public void Update()
+    public override EnemyStateType StateType => EnemyStateType.Idle;
+
+    public override void Enter()
     {
-        if (_e.ShouldFlee())
+        base.Enter();
+        Enemy.agent.isStopped = true;
+        Enemy.anim?.SetRunning(false);
+    }
+
+    public override void Update()
+    {
+        if (Enemy.ShouldRetreat())
         {
-            _e.StateMachine.ChangeState(new FleeState(_e));
+            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Flee));
             return;
         }
 
-        if (!_e.CanAggroByProximity())
+        if (Enemy.ShouldEnterEnragedState())
+        {
+            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Enraged));
+            return;
+        }
+
+        if (!Enemy.CanStartChase())
         {
             return;
         }
 
-        if (_e.GetFlatDistanceToTarget() <= _e.lookRadius)
+        if (Enemy.GetFlatDistanceToTarget() <= Enemy.lookRadius)
         {
-            _e.StateMachine.ChangeState(new AggressiveState(_e));
+            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Aggressive));
         }
-    }
-
-    public void Exit()
-    {
     }
 }

@@ -17,6 +17,8 @@ public class EnemyBase : MonoBehaviour
     public float fleeHealthThreshold = 0.25f;
     public bool isPeaceful = false;
     public bool isBoss = false;
+    public bool canFlee = true;
+    public bool allowRepeatFlee = false;
 
     [Header("References")]
     public NavMeshAgent agent;
@@ -26,12 +28,20 @@ public class EnemyBase : MonoBehaviour
     public HealthBarUI healthBarUi;
     public IDamageable targetDamageable;
 
+    public bool IsProvoked { get; private set; }
+    public bool HasRetreated { get; private set; }
+    public bool HasEnteredEnragedState { get; private set; }
+    public Vector3 TrackedTargetPosition { get; private set; }
+
+    private EnemyAttackSelector _attackSelector;
+
     protected virtual void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<EnemyAnimationBase>();
         health = GetComponent<HealthComponent>();
         healthBarUi = GetComponentInChildren<HealthBarUI>(true);
+        _attackSelector = new EnemyAttackSelector(this);
     }
 
     protected virtual void Start()
@@ -67,22 +77,37 @@ public class EnemyBase : MonoBehaviour
             agent.stoppingDistance = stoppingDistance;
         }
 
-        StateMachine.ChangeState(new IdleState(this));
+        if (health != null)
+        {
+            health.Core.OnDamaged += HandleDamaged;
+        }
+
+        ResetBehaviorState();
+        StateMachine.ChangeState(CreateState(EnemyStateType.Idle));
     }
 
     protected virtual void Update()
     {
         if (health != null && health.Core.IsDead)
         {
-            if (!(StateMachine.CurrentState is DeadState))
+            if (StateMachine.CurrentStateType != EnemyStateType.Dead)
             {
-                StateMachine.ChangeState(new DeadState(this));
+                StateMachine.ChangeState(CreateState(EnemyStateType.Dead));
             }
 
             return;
         }
 
         StateMachine.Update();
+        RememberTargetPosition();
+    }
+
+    protected virtual void OnDestroy()
+    {
+        if (health != null)
+        {
+            health.Core.OnDamaged -= HandleDamaged;
+        }
     }
 
     public float GetAttackSpeed()
@@ -95,16 +120,56 @@ public class EnemyBase : MonoBehaviour
         return attackCooldown;
     }
 
-    public virtual bool ShouldFlee()
+    public virtual bool ShouldRetreat()
     {
         return !isBoss &&
+            canFlee &&
+            (allowRepeatFlee || !HasRetreated) &&
             health != null &&
             health.Core.CurrentHealth <= health.Core.MaxHealth * fleeHealthThreshold;
     }
 
-    public virtual bool CanAggroByProximity()
+    public virtual bool CanStartChase()
     {
+        if (PeacefulModeService.IsEnabled)
+        {
+            if (isBoss)
+            {
+                return IsProvoked;
+            }
+
+            return false;
+        }
+
+        if (isBoss)
+        {
+            return true;
+        }
+
         return !isPeaceful;
+    }
+
+    public virtual bool ShouldAbortCombat()
+    {
+        if (!PeacefulModeService.IsEnabled)
+        {
+            return false;
+        }
+
+        if (isBoss)
+        {
+            return !IsProvoked;
+        }
+
+        return !ShouldRetreat();
+    }
+
+    public virtual bool ShouldEnterEnragedState()
+    {
+        return isBoss &&
+            !HasEnteredEnragedState &&
+            health != null &&
+            health.Core.CurrentHealth <= health.Core.MaxHealth * 0.5f;
     }
 
     public virtual float GetFlatDistanceToTarget()
@@ -122,6 +187,59 @@ public class EnemyBase : MonoBehaviour
     public virtual float GetCombatDistance()
     {
         return Mathf.Max(attackRange, stoppingDistance);
+    }
+
+    public virtual IState CreateState(EnemyStateType stateType)
+    {
+        switch (stateType)
+        {
+            case EnemyStateType.Idle:
+                return new IdleState(this);
+            case EnemyStateType.Aggressive:
+                return new AggressiveState(this);
+            case EnemyStateType.Attack:
+                return new AttackState(this);
+            case EnemyStateType.PowerAttack:
+                return new PowerAttackState(this);
+            case EnemyStateType.Search:
+                return new SearchState(this);
+            case EnemyStateType.Flee:
+                return new FleeState(this);
+            case EnemyStateType.Enraged:
+                return new EnragedState(this);
+            case EnemyStateType.Dead:
+                return new DeadState(this);
+            default:
+                return new IdleState(this);
+        }
+    }
+
+    public EnemyStateType ChooseAttackStateType()
+    {
+        return _attackSelector.GetNextAttackState();
+    }
+
+    public void AlertEnemy()
+    {
+        IsProvoked = true;
+    }
+
+    public void CompleteRetreat()
+    {
+        HasRetreated = true;
+    }
+
+    public void MarkEnragedStateEntered()
+    {
+        HasEnteredEnragedState = true;
+    }
+
+    public void ResetBehaviorState()
+    {
+        IsProvoked = !isBoss;
+        HasRetreated = false;
+        HasEnteredEnragedState = false;
+        TrackedTargetPosition = transform.position;
     }
 
     public bool CanDamageTarget(float distance)
@@ -168,5 +286,23 @@ public class EnemyBase : MonoBehaviour
 
         Quaternion lookRotation = Quaternion.LookRotation(direction);
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+    }
+
+    private void HandleDamaged()
+    {
+        if (isBoss)
+        {
+            IsProvoked = true;
+        }
+    }
+
+    private void RememberTargetPosition()
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        TrackedTargetPosition = target.position;
     }
 }

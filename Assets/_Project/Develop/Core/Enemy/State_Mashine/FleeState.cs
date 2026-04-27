@@ -1,52 +1,57 @@
 using UnityEngine;
 
-public class FleeState : IState
+public class FleeState : EnemyStateBase
 {
-    private readonly EnemyBase _e;
     private float _baseSpeed;
 
-    public FleeState(EnemyBase e) => _e = e;
-
-    public void Enter()
+    public FleeState(EnemyBase enemy) : base(enemy)
     {
-        _baseSpeed = _e.agent.speed;
-        _e.agent.speed = _baseSpeed * 1.5f;
-        _e.agent.isStopped = false;
-        _e.anim?.SetRunning(true);
     }
 
-    public void Update()
+    public override EnemyStateType StateType => EnemyStateType.Flee;
+
+    public override void Enter()
     {
-        if (_e.target == null)
+        base.Enter();
+        _baseSpeed = Enemy.agent.speed;
+        Enemy.agent.speed = _baseSpeed * 1.5f;
+        Enemy.agent.isStopped = false;
+        Enemy.anim?.SetRunning(true);
+    }
+
+    public override void Update()
+    {
+        if (Enemy.target == null)
         {
-            _e.StateMachine.ChangeState(new IdleState(_e));
+            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Idle));
             return;
         }
 
-        Vector3 runDir = (_e.transform.position - _e.target.position).normalized;
+        Vector3 runDir = (Enemy.transform.position - Enemy.target.position).normalized;
         if (runDir.sqrMagnitude <= 0.0001f)
         {
-            runDir = -_e.transform.forward;
+            runDir = -Enemy.transform.forward;
         }
 
-        _e.agent.SetDestination(_e.transform.position + runDir * 5f);
+        Enemy.agent.SetDestination(Enemy.transform.position + runDir * 5f);
 
-        if (!_e.ShouldFlee())
+        if (!Enemy.ShouldRetreat())
         {
-            if (_e.CanAggroByProximity() && _e.GetFlatDistanceToTarget() <= _e.lookRadius)
+            if (Enemy.CanStartChase() && Enemy.GetFlatDistanceToTarget() <= Enemy.lookRadius)
             {
-                _e.StateMachine.ChangeState(new AggressiveState(_e));
+                Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Aggressive));
             }
             else
             {
-                _e.StateMachine.ChangeState(new IdleState(_e));
+                Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Idle));
             }
         }
     }
 
-    public void Exit()
+    public override void Exit()
     {
-        _e.agent.speed = _baseSpeed;
-        _e.anim?.SetRunning(false);
+        Enemy.agent.speed = _baseSpeed;
+        Enemy.anim?.SetRunning(false);
+        Enemy.CompleteRetreat();
     }
 }

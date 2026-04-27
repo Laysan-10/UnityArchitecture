@@ -65,8 +65,8 @@ public class GameBootstrapper : MonoBehaviour, ISceneBootstrapper
         audioService.PlayMusic("MainTheme");
         audioService.PlaySound("Game_Start");
 
-        newEnemyAI[] allEnemies = FindObjectsByType<newEnemyAI>(FindObjectsSortMode.None);
-        foreach (newEnemyAI enemy in allEnemies)
+        EnemyAgent[] allEnemies = FindObjectsByType<EnemyAgent>(FindObjectsSortMode.None);
+        foreach (EnemyAgent enemy in allEnemies)
         {
             enemy.Construct(audioService);
         }
