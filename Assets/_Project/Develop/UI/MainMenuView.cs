@@ -4,7 +4,8 @@ using UnityEngine.UI;
 public class MainMenuView : MonoBehaviour
 {
     [Header("Main Menu Buttons")]
-    public Button playButton;
+    public Button newGameButton;
+    public Button continueButton;
     public Button settingsButton;
     public Button quitButton;
 
@@ -16,5 +17,13 @@ public class MainMenuView : MonoBehaviour
     public void ShowSettings(bool isActive)
     {
         settingsPanel.SetActive(isActive);
+    }
+
+    public void SetContinueInteractable(bool isInteractable)
+    {
+        if (continueButton != null)
+        {
+            continueButton.interactable = isInteractable;
+        }
     }
 }

@@ -19,18 +19,22 @@ public class EnemySaveData
 }
 
 [Serializable]
-public class SaveData
+public class SceneSaveData
 {
+    public string SceneName;
     public PlayerSaveData Player = new PlayerSaveData();
     public List<EnemySaveData> EnemyStates = new List<EnemySaveData>();
+    public long SaveTimeTicks;
 
-    public SaveData()
+    public SceneSaveData()
     {
+        SceneName = string.Empty;
         Player = new PlayerSaveData
         {
             Position = Vector3.zero,
             CurrentHealth = 100f
         };
         EnemyStates = new List<EnemySaveData>();
+        SaveTimeTicks = DateTime.UtcNow.Ticks;
     }
 }

@@ -1,23 +1,39 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class PauseMenuController
+public class PauseMenuController : IDisposable
 {
     private readonly PauseMenuView _view;
     private readonly PauseMenuModel _model;
-    private readonly ISaveLoadService _saveService;
+    private readonly ISaveInteractor _saveInteractor;
+    private readonly PlayerSaveController _playerSaveController;
+    private readonly EnemySaveController _enemySaveController;
+    private readonly string _sceneName;
     private readonly IInputService _inputService;
     private readonly HealthCore _playerHealth;
 
-    public PauseMenuController(PauseMenuView view, PauseMenuModel model, ISaveLoadService saveService, IInputService inputService, HealthCore playerHealth)
+    public PauseMenuController(
+        PauseMenuView view,
+        PauseMenuModel model,
+        ISaveInteractor saveInteractor,
+        PlayerSaveController playerSaveController,
+        EnemySaveController enemySaveController,
+        string sceneName,
+        IInputService inputService,
+        HealthCore playerHealth)
     {
         _view = view;
         _model = model;
-        _saveService = saveService;
+        _saveInteractor = saveInteractor;
+        _playerSaveController = playerSaveController;
+        _enemySaveController = enemySaveController;
+        _sceneName = sceneName;
         _inputService = inputService;
         _playerHealth = playerHealth;
 
         _view.Show(false);
+        _view.loadButton.interactable = _saveInteractor != null && _saveInteractor.HasSave(_sceneName);
 
         _view.saveButton.onClick.AddListener(SaveGame);
         _view.loadButton.onClick.AddListener(LoadGame);
@@ -56,13 +72,34 @@ public class PauseMenuController
     
     private void SaveGame()
     {
-        _saveService.Save();
+        if (_saveInteractor == null)
+        {
+            return;
+        }
+
+        _saveInteractor.SaveScene(
+            _sceneName,
+            _playerSaveController?.GetPlayerData(),
+            _enemySaveController?.GetEnemyData());
+        _view.loadButton.interactable = _saveInteractor.HasSave(_sceneName);
         ClosePauseMenu();
     }
 
     private void LoadGame()
     {
-        _saveService.Load();
+        if (_saveInteractor == null || !_saveInteractor.HasSave(_sceneName))
+        {
+            return;
+        }
+
+        SceneSaveData saveData = _saveInteractor.LoadScene(_sceneName);
+        if (saveData == null)
+        {
+            return;
+        }
+
+        _playerSaveController?.ApplyPlayerData(saveData.Player);
+        _enemySaveController?.ApplyEnemyData(saveData.EnemyStates);
         ClosePauseMenu();
     }
 
@@ -76,5 +113,14 @@ public class PauseMenuController
     {
         _model.IsPaused = false;
         UpdatePauseState();
+    }
+
+    public void Dispose()
+    {
+        _view.saveButton.onClick.RemoveListener(SaveGame);
+        _view.loadButton.onClick.RemoveListener(LoadGame);
+        _view.mainMenuButton.onClick.RemoveListener(GoToMainMenu);
+        _inputService.OnPausePressed -= TogglePause;
+        _playerHealth.OnDeath -= ForceClosePause;
     }
 }

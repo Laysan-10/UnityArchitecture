@@ -7,7 +7,7 @@ public class MenuBootstrapper : MonoBehaviour, ISceneBootstrapper
     private MainMenuController _menuController;
     private bool _isInitialized;
 
-    public void Initialize(ProjectContext projectContext)
+    public void Initialize()
     {
         if (_isInitialized)
         {
@@ -16,10 +16,15 @@ public class MenuBootstrapper : MonoBehaviour, ISceneBootstrapper
 
         _isInitialized = true;
 
-        IAudioService audioService = projectContext.AudioService;
+        IAudioService audioService = AppServices.Resolve<IAudioService>();
+        ISaveInteractor saveInteractor = AppServices.Resolve<ISaveInteractor>();
         SettingsModel settingsModel = new SettingsModel();
 
-        _menuController = new MainMenuController(_mainMenuView, settingsModel, audioService);
+        _menuController = new MainMenuController(
+            _mainMenuView,
+            settingsModel,
+            audioService,
+            saveInteractor);
 
         audioService.PlayMusic("Menu");
 

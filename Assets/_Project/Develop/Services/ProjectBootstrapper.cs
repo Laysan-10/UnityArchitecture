@@ -6,9 +6,7 @@ public class ProjectBootstrapper : MonoBehaviour
     private static ProjectBootstrapper _instance;
 
     private IAudioService _audioService;
-    private ISaveLoadService _saveLoadService;
-
-    private ProjectContext _projectContext;
+    private ISaveInteractor _saveInteractor;
 
     private void Awake()
     {
@@ -40,21 +38,14 @@ public class ProjectBootstrapper : MonoBehaviour
     {
         _audioService = new UnityAudioService();
 
-        IPlayerSaveRepository playerRepository = new PlayerSaveRepository();
-        IEnemySaveRepository enemyRepository = new EnemySaveRepository();
-        ISaveDataRepository saveDataRepository = new JsonSaveDataRepository();
-        SaveGameInteractor saveInteractor =
-            new SaveGameInteractor(playerRepository, enemyRepository, saveDataRepository);
-        LoadGameInteractor loadInteractor =
-            new LoadGameInteractor(playerRepository, enemyRepository, saveDataRepository);
+        IGameSaveRepository gameSaveRepository =
+            new GameSaveRepository(Application.persistentDataPath);
+        _saveInteractor = new SaveInteractor(gameSaveRepository);
 
-        _saveLoadService = new SaveLoadService(
-            playerRepository,
-            enemyRepository,
-            saveInteractor,
-            loadInteractor);
-
-        _projectContext = new ProjectContext(_audioService, _saveLoadService);
+        DependencyContainer container = new DependencyContainer();
+        container.Register<IAudioService>(_audioService);
+        container.Register<ISaveInteractor>(_saveInteractor);
+        AppServices.Initialize(container);
 
         Debug.Log("Global services initialized.");
     }
@@ -66,7 +57,7 @@ public class ProjectBootstrapper : MonoBehaviour
         {
             if (behaviour is ISceneBootstrapper sceneBootstrapper)
             {
-                sceneBootstrapper.Initialize(_projectContext);
+                sceneBootstrapper.Initialize();
             }
         }
     }

@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class GameBootstrapper : MonoBehaviour, ISceneBootstrapper
 {
@@ -25,12 +25,14 @@ public class GameBootstrapper : MonoBehaviour, ISceneBootstrapper
     [SerializeField] private ThirdPersonCameraController cameraController;
 
     private PauseMenuController _pauseMenuController;
+    private PlayerController _playerController;
     private InputService _inputService;
-    private readonly List<newEnemyAI> _registeredEnemies = new();
-    private ISaveLoadService _saveLoadService;
+    private PlayerSaveController _playerSaveController;
+    private EnemySaveController _enemySaveController;
+    private ISaveInteractor _saveInteractor;
     private bool _isInitialized;
 
-    public void Initialize(ProjectContext projectContext)
+    public void Initialize()
     {
         if (_isInitialized)
         {
@@ -39,8 +41,8 @@ public class GameBootstrapper : MonoBehaviour, ISceneBootstrapper
 
         _isInitialized = true;
 
-        IAudioService audioService = projectContext.AudioService;
-        _saveLoadService = projectContext.SaveLoadService;
+        IAudioService audioService = AppServices.Resolve<IAudioService>();
+        _saveInteractor = AppServices.Resolve<ISaveInteractor>();
 
         _inputService = new InputService(inputActionAsset);
         _inputService.Enable();
@@ -48,7 +50,12 @@ public class GameBootstrapper : MonoBehaviour, ISceneBootstrapper
         playerMovement.Construct(_inputService);
         playerHealth.Construct(audioService);
         playerCombat.Construct(_inputService, playerHealth, audioService);
-        playerAnimation.Construct(playerMovement, playerCombat, playerHealth);
+        _playerController = new PlayerController(
+            new PlayerModel(),
+            playerAnimation,
+            playerMovement,
+            playerCombat,
+            playerHealth);
 
         if (cameraController != null) cameraController.Construct(_inputService);
         if (magicUI != null) magicUI.Construct(playerCombat);
@@ -58,42 +65,62 @@ public class GameBootstrapper : MonoBehaviour, ISceneBootstrapper
         audioService.PlayMusic("MainTheme");
         audioService.PlaySound("Game_Start");
 
-        _saveLoadService.BindPlayer(playerMovement, playerHealth);
-
         newEnemyAI[] allEnemies = FindObjectsByType<newEnemyAI>(FindObjectsSortMode.None);
         foreach (newEnemyAI enemy in allEnemies)
         {
             enemy.Construct(audioService);
-            RegisterEnemy(enemy);
         }
+
+        _playerSaveController = new PlayerSaveController(playerMovement, playerHealth);
+        _enemySaveController = new EnemySaveController(allEnemies);
+
+        string sceneName = SceneManager.GetActiveScene().name;
+        InitializeSceneState(sceneName);
 
         _pauseMenuController = new PauseMenuController(
             pauseMenuView,
             new PauseMenuModel(),
-            _saveLoadService,
+            _saveInteractor,
+            _playerSaveController,
+            _enemySaveController,
+            sceneName,
             _inputService,
             playerHealth.Core);
     }
 
-    private void RegisterEnemy(newEnemyAI enemy)
+    private void Update()
     {
-        _saveLoadService.RegisterEnemy(enemy);
-        _registeredEnemies.Add(enemy);
+        _playerController?.Tick();
+    }
+
+    private void InitializeSceneState(string sceneName)
+    {
+        if (_saveInteractor == null)
+        {
+            _playerSaveController?.ApplyDefaultState();
+            _enemySaveController?.ApplyDefaultState();
+            return;
+        }
+
+        if (_saveInteractor.HasSave(sceneName))
+        {
+            SceneSaveData saveData = _saveInteractor.LoadScene(sceneName);
+            if (saveData != null)
+            {
+                _playerSaveController?.ApplyPlayerData(saveData.Player);
+                _enemySaveController?.ApplyEnemyData(saveData.EnemyStates);
+                return;
+            }
+        }
+
+        _playerSaveController?.ApplyDefaultState();
+        _enemySaveController?.ApplyDefaultState();
     }
 
     private void OnDestroy()
     {
-        if (_saveLoadService != null)
-        {
-            foreach (newEnemyAI enemy in _registeredEnemies)
-            {
-                _saveLoadService.UnregisterEnemy(enemy);
-            }
-
-            _saveLoadService.ClearPlayer();
-            _saveLoadService.ClearEnemies();
-        }
-
+        _pauseMenuController?.Dispose();
+        _playerController?.Dispose();
         _inputService?.Disable();
     }
 }
