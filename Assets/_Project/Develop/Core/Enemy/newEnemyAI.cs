@@ -3,15 +3,16 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent), typeof(EnemyAnimationController))]
-public class newEnemyAI : MonoBehaviour
+public class newEnemyAI : EnemyBase
 {
-    public enum EnemyType { Melee, Ranged }
+    public enum EnemyType
+    {
+        Melee,
+        Ranged
+    }
 
     [Header("Basic settings")]
     public EnemyType type;
-    public float lookRadius = 15f;
-    public float attackRange = 2.5f;
-    public float attackCooldown = 1.5f;
     [SerializeField] private float damageAmount = 15f;
 
     [Header("Ranged Attack")]
@@ -22,129 +23,74 @@ public class newEnemyAI : MonoBehaviour
     [SerializeField] private Transform targetTransform;
     [SerializeField] private HealthBarUI enemyHealthBarUI;
 
-    private NavMeshAgent _agent;
-    private EnemyAnimationController _animController;
-    private HealthComponent _myHealth;
     private IAudioService _audioService;
-    private IDamageable _targetDamageable;
-    private float _lastAttackTime;
     private EnemyId _enemyId;
-
-    public bool IsRunning { get; private set; }
 
     public void Construct(IAudioService audioService)
     {
         _audioService = audioService;
 
-        if (_myHealth == null)
+        if (health == null)
         {
-            _myHealth = GetComponent<HealthComponent>();
+            health = GetComponent<HealthComponent>();
         }
 
-        _myHealth?.Construct(audioService);
+        health?.Construct(audioService);
     }
 
-    private void Start()
+    protected override void Awake()
     {
-        _agent = GetComponent<NavMeshAgent>();
-        _animController = GetComponent<EnemyAnimationController>();
-        _myHealth = GetComponent<HealthComponent>();
-        _enemyId = GetComponent<EnemyId>();
-
-        if (_animController != null && _myHealth != null)
-        {
-            _animController.Construct(this, _myHealth.Core);
-        }
-
-        if (enemyHealthBarUI != null && _myHealth != null)
-        {
-            enemyHealthBarUI.Construct(_myHealth.Core);
-        }
+        base.Awake();
 
         if (targetTransform != null)
         {
-            _targetDamageable = targetTransform.GetComponent<IDamageable>();
+            target = targetTransform;
         }
+
+        if (enemyHealthBarUI != null)
+        {
+            healthBarUi = enemyHealthBarUI;
+        }
+
+        _enemyId = GetComponent<EnemyId>();
     }
 
-    private void Update()
+    protected override void Start()
     {
-        bool isTargetAlive = _targetDamageable != null && _targetDamageable.IsAlive;
-
-        if (targetTransform == null || (_myHealth != null && _myHealth.Core.IsDead) || !isTargetAlive)
-        {
-            IsRunning = false;
-            if (_agent.isActiveAndEnabled) _agent.isStopped = true;
-            return;
-        }
-
-        float distance = Vector3.Distance(targetTransform.position, transform.position);
-
-        if (distance <= lookRadius)
-        {
-            if (distance <= _agent.stoppingDistance)
-            {
-                IsRunning = false;
-                _agent.isStopped = true;
-                _agent.velocity = Vector3.zero;
-
-                LookTarget();
-
-                if (distance <= attackRange && Time.time - _lastAttackTime >= attackCooldown)
-                {
-                    Attack();
-                }
-            }
-            else
-            {
-                IsRunning = true;
-                _agent.isStopped = false;
-                _agent.SetDestination(targetTransform.position);
-            }
-        }
-        else
-        {
-            IsRunning = false;
-            _agent.isStopped = true;
-        }
+        attackDamage = damageAmount;
+        base.Start();
     }
 
-    private void Attack()
+    public override void PerformAttack()
     {
-        _lastAttackTime = Time.time;
-        _animController?.PlayAttack();
+        anim?.PlayAttack();
 
         if (type == EnemyType.Melee)
         {
             _audioService?.PlaySound("Enemy_Attack_Melee");
-            if (_targetDamageable != null)
+
+            if (CanDamageTarget(GetFlatDistanceToTarget()))
             {
-                _targetDamageable.TakeDamage(damageAmount, 0);
+                targetDamageable.TakeDamage(attackDamage, 0f);
                 _audioService?.PlaySound("Player_Hit");
             }
+
+            return;
         }
-        else if (type == EnemyType.Ranged)
+
+        _audioService?.PlaySound("Enemy_Attack_Ranged");
+        if (magicPrefab == null || firePoint == null || target == null)
         {
-            _audioService?.PlaySound("Enemy_Attack_Ranged");
-            if (magicPrefab != null && firePoint != null)
-            {
-                Vector3 aimDirection = (targetTransform.position + Vector3.up * 1f) - firePoint.position;
-                GameObject fireball = Instantiate(magicPrefab, firePoint.position, Quaternion.LookRotation(aimDirection));
-
-                if (fireball.TryGetComponent<MagicProjectile>(out var projectile))
-                {
-                    projectile.Setup(damageAmount, false);
-                }
-            }
+            return;
         }
-    }
 
-    private void LookTarget()
-    {
-        Vector3 direction = (targetTransform.position - transform.position).normalized;
-        direction.y = 0;
-        Quaternion lookRotation = Quaternion.LookRotation(direction);
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+        Vector3 aimDirection = (target.position + Vector3.up) - firePoint.position;
+        GameObject fireball = Object.Instantiate(magicPrefab, firePoint.position, Quaternion.LookRotation(aimDirection));
+
+        if (fireball.TryGetComponent<MagicProjectile>(out var projectile))
+        {
+            projectile.Setup(attackDamage, false);
+        }
     }
 
     public EnemySaveData CaptureState()
@@ -154,12 +100,12 @@ public class newEnemyAI : MonoBehaviour
             _enemyId = GetComponent<EnemyId>();
         }
 
-        if (_myHealth == null)
+        if (health == null)
         {
-            _myHealth = GetComponent<HealthComponent>();
+            health = GetComponent<HealthComponent>();
         }
 
-        if (_enemyId == null || _myHealth == null)
+        if (_enemyId == null || health == null)
         {
             return null;
         }
@@ -168,8 +114,8 @@ public class newEnemyAI : MonoBehaviour
         {
             Id = _enemyId.Id,
             Position = transform.position,
-            CurrentHp = _myHealth.Core.CurrentHealth,
-            IsDead = _myHealth.Core.IsDead
+            CurrentHp = health.Core.CurrentHealth,
+            IsDead = health.Core.IsDead
         };
     }
 
@@ -180,22 +126,22 @@ public class newEnemyAI : MonoBehaviour
             _enemyId = GetComponent<EnemyId>();
         }
 
-        if (_myHealth == null)
+        if (health == null)
         {
-            _myHealth = GetComponent<HealthComponent>();
+            health = GetComponent<HealthComponent>();
         }
 
-        if (_agent == null)
+        if (agent == null)
         {
-            _agent = GetComponent<NavMeshAgent>();
+            agent = GetComponent<NavMeshAgent>();
         }
 
-        if (_animController == null)
+        if (anim == null)
         {
-            _animController = GetComponent<EnemyAnimationController>();
+            anim = GetComponent<EnemyAnimationBase>();
         }
 
-        if (_enemyId == null || _myHealth == null || _agent == null || _animController == null)
+        if (_enemyId == null || health == null || agent == null || anim == null)
         {
             return;
         }
@@ -217,26 +163,27 @@ public class newEnemyAI : MonoBehaviour
 
         if (myData.IsDead)
         {
-            _myHealth.Core.RestoreHealth(0);
+            health.Core.RestoreHealth(0);
             gameObject.SetActive(false);
             return;
         }
 
         gameObject.SetActive(true);
 
-        if (enemyHealthBarUI != null)
+        if (healthBarUi != null)
         {
-            enemyHealthBarUI.gameObject.SetActive(true);
+            healthBarUi.gameObject.SetActive(true);
         }
 
-        _myHealth.Core.RestoreHealth(myData.CurrentHp);
+        health.Core.RestoreHealth(myData.CurrentHp);
 
-        _agent.enabled = false;
+        agent.enabled = false;
         transform.position = myData.Position;
-        _agent.enabled = true;
-        _agent.isStopped = false;
+        agent.enabled = true;
+        agent.isStopped = false;
 
-        _animController.ResetVisuals();
-        _lastAttackTime = Time.time;
+        anim.ResetVisuals();
+        StateMachine = new EnemyStateMachine();
+        StateMachine.ChangeState(new IdleState(this));
     }
 }

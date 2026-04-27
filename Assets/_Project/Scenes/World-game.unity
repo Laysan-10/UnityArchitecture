@@ -5131,10 +5131,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ecdd898c991f1d4db7ff15b6517bfcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::newEnemyAI
-  type: 0
   lookRadius: 25
   attackRange: 6
   attackCooldown: 2
+  stoppingDistance: 2
+  attackDamage: 15
+  powerAttackDamage: 30
+  fleeHealthThreshold: 0.25
+  isPeaceful: 0
+  isBoss: 0
+  agent: {fileID: 0}
+  anim: {fileID: 0}
+  health: {fileID: 0}
+  target: {fileID: 0}
+  healthBarUi: {fileID: 0}
+  type: 0
   damageAmount: 10
   magicPrefab: {fileID: 0}
   firePoint: {fileID: 0}
@@ -20389,7 +20400,7 @@ RectTransform:
   m_Father: {fileID: 990776644}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: -5.655792, y: 0}
   m_SizeDelta: {x: 0.3832, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -31890,7 +31901,7 @@ RectTransform:
   m_Father: {fileID: 1654709881}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: -5.655792, y: 0}
   m_SizeDelta: {x: 0.3832, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -68422,7 +68433,7 @@ RectTransform:
   m_Father: {fileID: 1389931482}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: -5.9396973, y: 0}
   m_SizeDelta: {x: 0.3832, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -74096,6 +74107,7 @@ MonoBehaviour:
   stoppingDistance: 6
   attackDamage: 15
   powerAttackDamage: 30
+  fleeHealthThreshold: 0.25
   isPeaceful: 0
   isBoss: 1
   agent: {fileID: 1332833022}
@@ -77350,6 +77362,7 @@ MonoBehaviour:
   stoppingDistance: 6
   attackDamage: 15
   powerAttackDamage: 30
+  fleeHealthThreshold: 0.25
   isPeaceful: 0
   isBoss: 1
   agent: {fileID: 1378496270}
@@ -106216,7 +106229,7 @@ RectTransform:
   m_Father: {fileID: 1750631005}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: -5.9396973, y: 0}
   m_SizeDelta: {x: 0.3832, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -111298,7 +111311,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1968270104
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -111358,10 +111371,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ecdd898c991f1d4db7ff15b6517bfcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::newEnemyAI
-  type: 1
   lookRadius: 30
   attackRange: 30
   attackCooldown: 3
+  stoppingDistance: 2
+  attackDamage: 15
+  powerAttackDamage: 30
+  fleeHealthThreshold: 0.25
+  isPeaceful: 0
+  isBoss: 0
+  agent: {fileID: 0}
+  anim: {fileID: 0}
+  health: {fileID: 0}
+  target: {fileID: 0}
+  healthBarUi: {fileID: 0}
+  type: 1
   damageAmount: 15
   magicPrefab: {fileID: 3591085408649203892, guid: f02d5ec69e888564d8b583759012c3b4, type: 3}
   firePoint: {fileID: 1564777948}
@@ -142037,7 +142061,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &4697964297158389924
 GameObject:
   m_ObjectHideFlags: 0
@@ -142438,10 +142462,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ecdd898c991f1d4db7ff15b6517bfcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::newEnemyAI
-  type: 1
   lookRadius: 30
   attackRange: 30
   attackCooldown: 3
+  stoppingDistance: 2
+  attackDamage: 15
+  powerAttackDamage: 30
+  fleeHealthThreshold: 0.25
+  isPeaceful: 0
+  isBoss: 0
+  agent: {fileID: 0}
+  anim: {fileID: 0}
+  health: {fileID: 0}
+  target: {fileID: 0}
+  healthBarUi: {fileID: 0}
+  type: 1
   damageAmount: 15
   magicPrefab: {fileID: 3591085408649203892, guid: f02d5ec69e888564d8b583759012c3b4, type: 3}
   firePoint: {fileID: 1239064245}
@@ -143576,7 +143611,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &5848440907167492929
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -143589,10 +143624,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ecdd898c991f1d4db7ff15b6517bfcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::newEnemyAI
-  type: 0
   lookRadius: 15
   attackRange: 6
   attackCooldown: 2
+  stoppingDistance: 2
+  attackDamage: 15
+  powerAttackDamage: 30
+  fleeHealthThreshold: 0.25
+  isPeaceful: 0
+  isBoss: 0
+  agent: {fileID: 0}
+  anim: {fileID: 0}
+  health: {fileID: 0}
+  target: {fileID: 0}
+  healthBarUi: {fileID: 0}
+  type: 0
   damageAmount: 10
   magicPrefab: {fileID: 0}
   firePoint: {fileID: 0}
@@ -144702,7 +144748,7 @@ RectTransform:
   m_Father: {fileID: 274719972543270726}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: -5.9396973, y: 0}
   m_SizeDelta: {x: 0.3832, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -145461,7 +145507,7 @@ RectTransform:
   m_Father: {fileID: 41172580554746509}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: -5.655792, y: 0}
   m_SizeDelta: {x: 0.3832, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}

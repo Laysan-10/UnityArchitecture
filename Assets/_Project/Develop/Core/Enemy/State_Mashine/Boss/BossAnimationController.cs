@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(Animator))]
-public class BossAnimationController : MonoBehaviour
+public class BossAnimationController : EnemyAnimationBase
 {
     private Animator _animator;
     private EnemyBase _ai;
@@ -19,7 +19,7 @@ public class BossAnimationController : MonoBehaviour
         _animator = GetComponent<Animator>();
     }
 
-    public void Construct(EnemyBase ai, HealthCore healthCore)
+    public override void Construct(EnemyBase ai, HealthCore healthCore)
     {
         _ai = ai;
         _healthCore = healthCore;
@@ -31,7 +31,7 @@ public class BossAnimationController : MonoBehaviour
         }
     }
 
-    public void SetRunning(bool isRunning)
+    public override void SetRunning(bool isRunning)
     {
         if (HasParameter(IsRunHash, AnimatorControllerParameterType.Bool))
         {
@@ -39,7 +39,7 @@ public class BossAnimationController : MonoBehaviour
         }
     }
 
-    public void PlayAttack()
+    public override void PlayAttack()
     {
         if (HasParameter(IsAttackHash, AnimatorControllerParameterType.Trigger))
         {
@@ -47,7 +47,7 @@ public class BossAnimationController : MonoBehaviour
         }
     }
 
-    public void PlayPowerAttack()
+    public override void PlayPowerAttack()
     {
         if (HasParameter(IsPowerAttackHash, AnimatorControllerParameterType.Trigger))
         {
@@ -58,7 +58,7 @@ public class BossAnimationController : MonoBehaviour
         PlayAttack();
     }
 
-    public void PlayHit()
+    public override void PlayHit()
     {
         if (HasParameter(HitHash, AnimatorControllerParameterType.Trigger))
         {
@@ -66,7 +66,7 @@ public class BossAnimationController : MonoBehaviour
         }
     }
 
-    public void PlayDead()
+    public override void PlayDead()
     {
         if (HasParameter(DeadHash, AnimatorControllerParameterType.Trigger))
         {
@@ -84,7 +84,7 @@ public class BossAnimationController : MonoBehaviour
         }
     }
 
-    public void ResetVisuals()
+    public override void ResetVisuals()
     {
         _animator.Rebind();
         _animator.Update(0f);

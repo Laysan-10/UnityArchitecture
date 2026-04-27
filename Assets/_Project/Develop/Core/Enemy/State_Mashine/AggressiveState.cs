@@ -13,18 +13,26 @@ public class AggressiveState : IState
 
     public void Update()
     {
+        if (_e.target == null)
+        {
+            _e.StateMachine.ChangeState(new IdleState(_e));
+            return;
+        }
+
+        if (_e.ShouldFlee())
+        {
+            _e.StateMachine.ChangeState(new FleeState(_e));
+            return;
+        }
+
         _e.agent.SetDestination(_e.target.position);
-        _e.anim.SetRunning(true);
+        _e.anim?.SetRunning(true);
 
-        Vector3 flatTarget = _e.target.position;
-        flatTarget.y = _e.transform.position.y;
-
-        float dist = Vector3.Distance(_e.transform.position, flatTarget);
-        float combatDistance = Mathf.Max(_e.attackRange, _e.agent.stoppingDistance);
+        float dist = _e.GetFlatDistanceToTarget();
         bool reachedTarget = !_e.agent.pathPending &&
-            _e.agent.remainingDistance <= combatDistance + 0.05f;
+            _e.agent.remainingDistance <= _e.GetCombatDistance() + 0.05f;
 
-        if (reachedTarget || dist <= combatDistance)
+        if (reachedTarget || dist <= _e.GetCombatDistance())
         {
             _e.StateMachine.ChangeState(new AttackState(_e));
             return;
@@ -38,6 +46,6 @@ public class AggressiveState : IState
 
     public void Exit()
     {
-        _e.anim.SetRunning(false);
+        _e.anim?.SetRunning(false);
     }
 }

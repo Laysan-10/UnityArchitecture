@@ -20,23 +20,22 @@ public class PowerAttackState : IState
         _timer = _duration;
         _hasDealtDamage = false;
         _e.agent.isStopped = true;
-        _e.anim.SetRunning(false);
-        _e.anim.PlayPowerAttack();
+        _e.anim?.SetRunning(false);
+        _e.anim?.PlayPowerAttack();
     }
 
     public void Update()
     {
-        Vector3 flatTarget = _e.target.position;
-        flatTarget.y = _e.transform.position.y;
-        float distance = Vector3.Distance(_e.transform.position, flatTarget);
+        _e.FaceTarget();
 
-        if (!_hasDealtDamage && _timer <= _duration - _hitMoment && _e.CanDamageTarget(distance))
+        _timer -= Time.deltaTime;
+
+        if (!_hasDealtDamage && _timer <= _duration - _hitMoment)
         {
-            _e.targetDamageable.TakeDamage(_e.powerAttackDamage, 0f);
+            _e.PerformPowerAttack();
             _hasDealtDamage = true;
         }
 
-        _timer -= Time.deltaTime;
         if (_timer <= 0f)
         {
             _e.StateMachine.ChangeState(new AggressiveState(_e));

@@ -1,11 +1,11 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
-public class EnemyAnimationController : MonoBehaviour
+public class EnemyAnimationController : EnemyAnimationBase
 {
     private Animator _animator;
-    private newEnemyAI _ai;
-    private HealthCore _healthCore; 
+    private EnemyBase _ai;
+    private HealthCore _healthCore;
 
     private static readonly int IsRunHash = Animator.StringToHash("IsRun");
     private static readonly int IsAttackHash = Animator.StringToHash("IsAttack");
@@ -17,7 +17,7 @@ public class EnemyAnimationController : MonoBehaviour
         _animator = GetComponent<Animator>();
     }
 
-    public void Construct(newEnemyAI ai, HealthCore healthCore)
+    public override void Construct(EnemyBase ai, HealthCore healthCore)
     {
         _ai = ai;
         _healthCore = healthCore;
@@ -29,33 +29,51 @@ public class EnemyAnimationController : MonoBehaviour
         }
     }
 
-    private void Update()
+    public override void SetRunning(bool isRunning)
     {
-        if (_ai == null || (_healthCore != null && _healthCore.IsDead)) return;
-
-        _animator.SetBool(IsRunHash, _ai.IsRunning);
+        _animator.SetBool(IsRunHash, isRunning);
     }
 
-    public void PlayAttack() => _animator.SetTrigger(IsAttackHash);
-    private void PlayHit() => _animator.SetTrigger(HitHash);
-    public void SetRunning(bool value) => _animator.SetBool(IsRunHash, value);
-    
-    private void PlayDead() 
+    public override void PlayAttack()
+    {
+        _animator.SetTrigger(IsAttackHash);
+    }
+
+    public override void PlayHit()
+    {
+        _animator.SetTrigger(HitHash);
+    }
+
+    public override void PlayDead()
     {
         _animator.SetTrigger(DeadHash);
-        if (_ai != null) _ai.enabled = false;
-        if (TryGetComponent<UnityEngine.AI.NavMeshAgent>(out var agent)) agent.enabled = false;
+
+        if (_ai != null)
+        {
+            _ai.enabled = false;
+        }
+
+        if (TryGetComponent<UnityEngine.AI.NavMeshAgent>(out var agent))
+        {
+            agent.enabled = false;
+        }
     }
 
-    public void ResetVisuals()
+    public override void ResetVisuals()
     {
         _animator.Rebind();
         _animator.Update(0f);
-        
-        if (_ai != null) _ai.enabled = true;
-        if (TryGetComponent<UnityEngine.AI.NavMeshAgent>(out var agent)) agent.enabled = true;
-    }
 
+        if (_ai != null)
+        {
+            _ai.enabled = true;
+        }
+
+        if (TryGetComponent<UnityEngine.AI.NavMeshAgent>(out var agent))
+        {
+            agent.enabled = true;
+        }
+    }
 
     private void OnDestroy()
     {
