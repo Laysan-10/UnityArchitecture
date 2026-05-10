@@ -10,8 +10,6 @@ public abstract class EnemyStateBase : IState
         Enemy = enemy;
     }
 
-    public abstract EnemyStateType StateType { get; }
-
     public virtual void Enter()
     {
         StateEnterTime = Time.time;

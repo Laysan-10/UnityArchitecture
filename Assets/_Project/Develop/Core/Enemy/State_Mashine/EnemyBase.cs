@@ -83,16 +83,16 @@ public class EnemyBase : MonoBehaviour
         }
 
         ResetBehaviorState();
-        StateMachine.ChangeState(CreateState(EnemyStateType.Idle));
+        StateMachine.ChangeState(CreateIdleState());
     }
 
     protected virtual void Update()
     {
         if (health != null && health.Core.IsDead)
         {
-            if (StateMachine.CurrentStateType != EnemyStateType.Dead)
+            if (!StateMachine.IsInState<DeadState>())
             {
-                StateMachine.ChangeState(CreateState(EnemyStateType.Dead));
+                StateMachine.ChangeState(CreateDeadState());
             }
 
             return;
@@ -189,32 +189,16 @@ public class EnemyBase : MonoBehaviour
         return Mathf.Max(attackRange, stoppingDistance);
     }
 
-    public virtual IState CreateState(EnemyStateType stateType)
-    {
-        switch (stateType)
-        {
-            case EnemyStateType.Idle:
-                return new IdleState(this);
-            case EnemyStateType.Aggressive:
-                return new AggressiveState(this);
-            case EnemyStateType.Attack:
-                return new AttackState(this);
-            case EnemyStateType.PowerAttack:
-                return new PowerAttackState(this);
-            case EnemyStateType.Search:
-                return new SearchState(this);
-            case EnemyStateType.Flee:
-                return new FleeState(this);
-            case EnemyStateType.Enraged:
-                return new EnragedState(this);
-            case EnemyStateType.Dead:
-                return new DeadState(this);
-            default:
-                return new IdleState(this);
-        }
-    }
+    public virtual IState CreateIdleState() => new IdleState(this);
+    public virtual IState CreateAggressiveState() => new AggressiveState(this);
+    public virtual IState CreateAttackState() => new AttackState(this);
+    public virtual IState CreatePowerAttackState() => new PowerAttackState(this);
+    public virtual IState CreateSearchState() => new SearchState(this);
+    public virtual IState CreateFleeState() => new FleeState(this);
+    public virtual IState CreateEnragedState() => new EnragedState(this);
+    public virtual IState CreateDeadState() => new DeadState(this);
 
-    public EnemyStateType ChooseAttackStateType()
+    public IState ChooseAttackState()
     {
         return _attackSelector.GetNextAttackState();
     }

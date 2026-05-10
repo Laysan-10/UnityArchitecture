@@ -9,8 +9,6 @@ public class SearchState : EnemyStateBase
         _searchDuration = searchDuration;
     }
 
-    public override EnemyStateType StateType => EnemyStateType.Search;
-
     public override void Enter()
     {
         base.Enter();
@@ -23,31 +21,31 @@ public class SearchState : EnemyStateBase
     {
         if (Enemy.ShouldAbortCombat())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Idle));
+            Enemy.StateMachine.ChangeState(Enemy.CreateIdleState());
             return;
         }
 
         if (Enemy.ShouldEnterEnragedState())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Enraged));
+            Enemy.StateMachine.ChangeState(Enemy.CreateEnragedState());
             return;
         }
 
         if (Enemy.ShouldRetreat())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Flee));
+            Enemy.StateMachine.ChangeState(Enemy.CreateFleeState());
             return;
         }
 
         if (Enemy.CanStartChase() && Enemy.GetFlatDistanceToTarget() <= Enemy.lookRadius)
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Aggressive));
+            Enemy.StateMachine.ChangeState(Enemy.CreateAggressiveState());
             return;
         }
 
         if (Time.time - StateEnterTime >= _searchDuration || Enemy.agent.remainingDistance <= Enemy.agent.stoppingDistance + 0.1f)
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Idle));
+            Enemy.StateMachine.ChangeState(Enemy.CreateIdleState());
         }
     }
 

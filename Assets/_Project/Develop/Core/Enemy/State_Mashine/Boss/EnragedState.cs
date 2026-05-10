@@ -9,8 +9,6 @@ public class EnragedState : EnemyStateBase
         _duration = duration;
     }
 
-    public override EnemyStateType StateType => EnemyStateType.Enraged;
-
     public override void Enter()
     {
         base.Enter();
@@ -31,10 +29,10 @@ public class EnragedState : EnemyStateBase
 
         if (Enemy.target == null || !Enemy.CanStartChase())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Idle));
+            Enemy.StateMachine.ChangeState(Enemy.CreateIdleState());
             return;
         }
 
-        Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Aggressive));
+        Enemy.StateMachine.ChangeState(Enemy.CreateAggressiveState());
     }
 }

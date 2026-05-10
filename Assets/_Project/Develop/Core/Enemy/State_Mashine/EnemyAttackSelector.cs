@@ -9,13 +9,13 @@ public class EnemyAttackSelector
         _enemy = enemy;
     }
 
-    public EnemyStateType GetNextAttackState()
+    public IState GetNextAttackState()
     {
         if (_enemy.isBoss && Random.value > 0.7f)
         {
-            return EnemyStateType.PowerAttack;
+            return _enemy.CreatePowerAttackState();
         }
 
-        return EnemyStateType.Attack;
+        return _enemy.CreateAttackState();
     }
 }

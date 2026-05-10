@@ -6,8 +6,6 @@ public class IdleState : EnemyStateBase
     {
     }
 
-    public override EnemyStateType StateType => EnemyStateType.Idle;
-
     public override void Enter()
     {
         base.Enter();
@@ -19,13 +17,13 @@ public class IdleState : EnemyStateBase
     {
         if (Enemy.ShouldRetreat())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Flee));
+            Enemy.StateMachine.ChangeState(Enemy.CreateFleeState());
             return;
         }
 
         if (Enemy.ShouldEnterEnragedState())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Enraged));
+            Enemy.StateMachine.ChangeState(Enemy.CreateEnragedState());
             return;
         }
 
@@ -36,7 +34,7 @@ public class IdleState : EnemyStateBase
 
         if (Enemy.GetFlatDistanceToTarget() <= Enemy.lookRadius)
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Aggressive));
+            Enemy.StateMachine.ChangeState(Enemy.CreateAggressiveState());
         }
     }
 }

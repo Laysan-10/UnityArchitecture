@@ -4,8 +4,6 @@ public class DeadState : EnemyStateBase
     {
     }
 
-    public override EnemyStateType StateType => EnemyStateType.Dead;
-
     public override void Enter()
     {
         base.Enter();

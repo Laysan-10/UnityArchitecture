@@ -1,10 +1,11 @@
 using UnityEngine;
 
-public class PowerAttackState : BaseAttackState
+public class PowerAttackState : EnemyStateBase
 {
     private readonly float _duration;
     private readonly float _hitMoment;
     private bool _hasDealtDamage;
+    private float _attackTimer;
 
     public PowerAttackState(EnemyBase enemy, float duration = 1.1f, float hitMoment = 0.45f) : base(enemy)
     {
@@ -12,47 +13,58 @@ public class PowerAttackState : BaseAttackState
         _hitMoment = hitMoment;
     }
 
-    public override EnemyStateType StateType => EnemyStateType.PowerAttack;
-    protected override EnemyStateType AggressiveStateType => EnemyStateType.Aggressive;
-
     public override void Enter()
     {
         base.Enter();
+        Enemy.agent.isStopped = true;
+        Enemy.anim?.SetRunning(false);
         _hasDealtDamage = false;
+        _attackTimer = 0f;
         Enemy.anim?.PlayPowerAttack();
     }
 
     public override void Update()
     {
+        if (Enemy.ShouldAbortCombat())
+        {
+            Enemy.StateMachine.ChangeState(Enemy.CreateIdleState());
+            return;
+        }
+
+        if (Enemy.ShouldEnterEnragedState())
+        {
+            Enemy.StateMachine.ChangeState(Enemy.CreateEnragedState());
+            return;
+        }
+
         if (Enemy.ShouldRetreat())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Flee));
+            Enemy.StateMachine.ChangeState(Enemy.CreateFleeState());
             return;
         }
 
         Enemy.FaceTarget();
-        AttackTimer += Time.deltaTime;
+        _attackTimer += Time.deltaTime;
 
-        if (!_hasDealtDamage && AttackTimer >= _hitMoment)
+        if (!_hasDealtDamage && _attackTimer >= _hitMoment)
         {
-            PerformAttack();
+            Enemy.PerformPowerAttack();
             _hasDealtDamage = true;
         }
 
         if (Enemy.GetFlatDistanceToTarget() > Enemy.lookRadius)
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Search));
+            Enemy.StateMachine.ChangeState(Enemy.CreateSearchState());
             return;
         }
 
-        if (AttackTimer >= _duration)
+        if (_attackTimer >= _duration)
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Aggressive));
+            Enemy.StateMachine.ChangeState(Enemy.CreateAggressiveState());
         }
     }
 
-    protected override void PerformAttack()
+    public override void Exit()
     {
-        Enemy.PerformPowerAttack();
     }
 }

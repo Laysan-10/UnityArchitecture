@@ -6,8 +6,6 @@ public class AggressiveState : EnemyStateBase
     {
     }
 
-    public override EnemyStateType StateType => EnemyStateType.Aggressive;
-
     public override void Enter()
     {
         base.Enter();
@@ -18,25 +16,25 @@ public class AggressiveState : EnemyStateBase
     {
         if (Enemy.target == null)
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Idle));
+            Enemy.StateMachine.ChangeState(Enemy.CreateIdleState());
             return;
         }
 
         if (Enemy.ShouldAbortCombat())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Idle));
+            Enemy.StateMachine.ChangeState(Enemy.CreateIdleState());
             return;
         }
 
         if (Enemy.ShouldEnterEnragedState())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Enraged));
+            Enemy.StateMachine.ChangeState(Enemy.CreateEnragedState());
             return;
         }
 
         if (Enemy.ShouldRetreat())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Flee));
+            Enemy.StateMachine.ChangeState(Enemy.CreateFleeState());
             return;
         }
 
@@ -49,13 +47,13 @@ public class AggressiveState : EnemyStateBase
 
         if (reachedTarget || dist <= Enemy.GetCombatDistance())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateState(Enemy.ChooseAttackStateType()));
+            Enemy.StateMachine.ChangeState(Enemy.ChooseAttackState());
             return;
         }
 
         if (dist > Enemy.lookRadius)
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Search));
+            Enemy.StateMachine.ChangeState(Enemy.CreateSearchState());
         }
     }
 

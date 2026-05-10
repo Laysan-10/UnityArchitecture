@@ -8,8 +8,6 @@ public class FleeState : EnemyStateBase
     {
     }
 
-    public override EnemyStateType StateType => EnemyStateType.Flee;
-
     public override void Enter()
     {
         base.Enter();
@@ -23,7 +21,7 @@ public class FleeState : EnemyStateBase
     {
         if (Enemy.target == null)
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Idle));
+            Enemy.StateMachine.ChangeState(Enemy.CreateIdleState());
             return;
         }
 
@@ -39,11 +37,11 @@ public class FleeState : EnemyStateBase
         {
             if (Enemy.CanStartChase() && Enemy.GetFlatDistanceToTarget() <= Enemy.lookRadius)
             {
-                Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Aggressive));
+                Enemy.StateMachine.ChangeState(Enemy.CreateAggressiveState());
             }
             else
             {
-                Enemy.StateMachine.ChangeState(Enemy.CreateState(EnemyStateType.Idle));
+                Enemy.StateMachine.ChangeState(Enemy.CreateIdleState());
             }
         }
     }
