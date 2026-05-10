@@ -29,10 +29,10 @@ public class EnragedState : EnemyStateBase
 
         if (Enemy.target == null || !Enemy.CanStartChase())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateIdleState());
+            Enemy.StateMachine.ChangeState(new IdleState(Enemy));
             return;
         }
 
-        Enemy.StateMachine.ChangeState(Enemy.CreateAggressiveState());
+        Enemy.StateMachine.ChangeState(new AggressiveState(Enemy));
     }
 }

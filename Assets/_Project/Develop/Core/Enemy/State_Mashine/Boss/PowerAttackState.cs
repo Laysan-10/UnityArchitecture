@@ -27,19 +27,19 @@ public class PowerAttackState : EnemyStateBase
     {
         if (Enemy.ShouldAbortCombat())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateIdleState());
+            Enemy.StateMachine.ChangeState(new IdleState(Enemy));
             return;
         }
 
         if (Enemy.ShouldEnterEnragedState())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateEnragedState());
+            Enemy.StateMachine.ChangeState(new EnragedState(Enemy));
             return;
         }
 
         if (Enemy.ShouldRetreat())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateFleeState());
+            Enemy.StateMachine.ChangeState(new FleeState(Enemy));
             return;
         }
 
@@ -54,13 +54,13 @@ public class PowerAttackState : EnemyStateBase
 
         if (Enemy.GetFlatDistanceToTarget() > Enemy.lookRadius)
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateSearchState());
+            Enemy.StateMachine.ChangeState(new SearchState(Enemy));
             return;
         }
 
         if (_attackTimer >= _duration)
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateAggressiveState());
+            Enemy.StateMachine.ChangeState(new AggressiveState(Enemy));
         }
     }
 

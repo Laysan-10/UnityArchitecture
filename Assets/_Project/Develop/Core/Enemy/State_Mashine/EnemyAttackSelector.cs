@@ -13,9 +13,9 @@ public class EnemyAttackSelector
     {
         if (_enemy.isBoss && Random.value > 0.7f)
         {
-            return _enemy.CreatePowerAttackState();
+            return new PowerAttackState(_enemy);
         }
 
-        return _enemy.CreateAttackState();
+        return new AttackState(_enemy);
     }
 }

@@ -21,31 +21,31 @@ public class SearchState : EnemyStateBase
     {
         if (Enemy.ShouldAbortCombat())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateIdleState());
+            Enemy.StateMachine.ChangeState(new IdleState(Enemy));
             return;
         }
 
         if (Enemy.ShouldEnterEnragedState())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateEnragedState());
+            Enemy.StateMachine.ChangeState(new EnragedState(Enemy));
             return;
         }
 
         if (Enemy.ShouldRetreat())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateFleeState());
+            Enemy.StateMachine.ChangeState(new FleeState(Enemy));
             return;
         }
 
         if (Enemy.CanStartChase() && Enemy.GetFlatDistanceToTarget() <= Enemy.lookRadius)
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateAggressiveState());
+            Enemy.StateMachine.ChangeState(new AggressiveState(Enemy));
             return;
         }
 
         if (Time.time - StateEnterTime >= _searchDuration || Enemy.agent.remainingDistance <= Enemy.agent.stoppingDistance + 0.1f)
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateIdleState());
+            Enemy.StateMachine.ChangeState(new IdleState(Enemy));
         }
     }
 

@@ -21,7 +21,7 @@ public class FleeState : EnemyStateBase
     {
         if (Enemy.target == null)
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateIdleState());
+            Enemy.StateMachine.ChangeState(new IdleState(Enemy));
             return;
         }
 
@@ -37,11 +37,11 @@ public class FleeState : EnemyStateBase
         {
             if (Enemy.CanStartChase() && Enemy.GetFlatDistanceToTarget() <= Enemy.lookRadius)
             {
-                Enemy.StateMachine.ChangeState(Enemy.CreateAggressiveState());
+                Enemy.StateMachine.ChangeState(new AggressiveState(Enemy));
             }
             else
             {
-                Enemy.StateMachine.ChangeState(Enemy.CreateIdleState());
+                Enemy.StateMachine.ChangeState(new IdleState(Enemy));
             }
         }
     }

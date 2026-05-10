@@ -83,7 +83,7 @@ public class EnemyBase : MonoBehaviour
         }
 
         ResetBehaviorState();
-        StateMachine.ChangeState(CreateIdleState());
+        StateMachine.ChangeState(new IdleState(this));
     }
 
     protected virtual void Update()
@@ -92,7 +92,7 @@ public class EnemyBase : MonoBehaviour
         {
             if (!StateMachine.IsInState<DeadState>())
             {
-                StateMachine.ChangeState(CreateDeadState());
+                StateMachine.ChangeState(new DeadState(this));
             }
 
             return;
@@ -188,15 +188,6 @@ public class EnemyBase : MonoBehaviour
     {
         return Mathf.Max(attackRange, stoppingDistance);
     }
-
-    public virtual IState CreateIdleState() => new IdleState(this);
-    public virtual IState CreateAggressiveState() => new AggressiveState(this);
-    public virtual IState CreateAttackState() => new AttackState(this);
-    public virtual IState CreatePowerAttackState() => new PowerAttackState(this);
-    public virtual IState CreateSearchState() => new SearchState(this);
-    public virtual IState CreateFleeState() => new FleeState(this);
-    public virtual IState CreateEnragedState() => new EnragedState(this);
-    public virtual IState CreateDeadState() => new DeadState(this);
 
     public IState ChooseAttackState()
     {

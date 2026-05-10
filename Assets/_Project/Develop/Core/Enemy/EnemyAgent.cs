@@ -185,6 +185,6 @@ public class EnemyAgent : EnemyBase
         anim.ResetVisuals();
         ResetBehaviorState();
         StateMachine = new EnemyStateMachine();
-        StateMachine.ChangeState(CreateIdleState());
+        StateMachine.ChangeState(new IdleState(this));
     }
 }

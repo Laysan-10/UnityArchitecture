@@ -16,25 +16,25 @@ public class AggressiveState : EnemyStateBase
     {
         if (Enemy.target == null)
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateIdleState());
+            Enemy.StateMachine.ChangeState(new IdleState(Enemy));
             return;
         }
 
         if (Enemy.ShouldAbortCombat())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateIdleState());
+            Enemy.StateMachine.ChangeState(new IdleState(Enemy));
             return;
         }
 
         if (Enemy.ShouldEnterEnragedState())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateEnragedState());
+            Enemy.StateMachine.ChangeState(new EnragedState(Enemy));
             return;
         }
 
         if (Enemy.ShouldRetreat())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateFleeState());
+            Enemy.StateMachine.ChangeState(new FleeState(Enemy));
             return;
         }
 
@@ -53,7 +53,7 @@ public class AggressiveState : EnemyStateBase
 
         if (dist > Enemy.lookRadius)
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateSearchState());
+            Enemy.StateMachine.ChangeState(new SearchState(Enemy));
         }
     }
 

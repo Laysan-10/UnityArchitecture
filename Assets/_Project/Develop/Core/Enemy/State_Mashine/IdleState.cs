@@ -17,13 +17,13 @@ public class IdleState : EnemyStateBase
     {
         if (Enemy.ShouldRetreat())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateFleeState());
+            Enemy.StateMachine.ChangeState(new FleeState(Enemy));
             return;
         }
 
         if (Enemy.ShouldEnterEnragedState())
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateEnragedState());
+            Enemy.StateMachine.ChangeState(new EnragedState(Enemy));
             return;
         }
 
@@ -34,7 +34,7 @@ public class IdleState : EnemyStateBase
 
         if (Enemy.GetFlatDistanceToTarget() <= Enemy.lookRadius)
         {
-            Enemy.StateMachine.ChangeState(Enemy.CreateAggressiveState());
+            Enemy.StateMachine.ChangeState(new AggressiveState(Enemy));
         }
     }
 }
