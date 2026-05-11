@@ -2013,7 +2013,7 @@ MonoBehaviour:
   powerAttackDamage: 30
   fleeHealthThreshold: 0.25
   isPeaceful: 0
-  isBoss: 1
+  isBoss: 0
   canFlee: 1
   allowRepeatFlee: 0
   agent: {fileID: 5164900000847127588}

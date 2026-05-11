@@ -42,6 +42,7 @@ public class EnemySpawnFactorySO : ScriptableObject
         float finalPowerAttackDamage = isRare ? powerAttackDamage * rareDamageMultiplier : powerAttackDamage;
 
         enemy.ApplySpawnStats(finalAttackDamage, finalPowerAttackDamage, attackRange, stoppingDistance);
+        enemy.ApplyRareState(isRare);
 
         HealthComponent health = enemy.GetComponent<HealthComponent>();
         if (health != null)

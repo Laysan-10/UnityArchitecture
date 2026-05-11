@@ -9,16 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f55ad2d593195ef4892d7f8e39c23eb8, type: 3}
-  m_Name: MagicGoblin Type 2
-  m_EditorClassIdentifier: Assembly-CSharp::EnemySpawnFactorySO
-  prefab: {fileID: 4965236750368612448, guid: bf93dd567eefa6141b1e556c545476dc, type: 3}
-  selectionWeight: 1
-  maxHealth: 100
+  m_Script: {fileID: 11500000, guid: 0e90b866474c20f45a02b2054f036df9, type: 3}
+  m_Name: Boss Type 2
+  m_EditorClassIdentifier: Assembly-CSharp::BossSpawnFactorySO
+  prefab: {fileID: 4606380114194574547, guid: 5f007ca6713c3e54fa7b38e0c14aa3de, type: 3}
+  maxHealth: 150
   attackDamage: 15
   powerAttackDamage: 30
-  attackRange: 30
-  stoppingDistance: 2
+  attackRange: 2.5
+  stoppingDistance: 6
   isRare: 0
   rareHealthMultiplier: 1.5
   rareDamageMultiplier: 1.35

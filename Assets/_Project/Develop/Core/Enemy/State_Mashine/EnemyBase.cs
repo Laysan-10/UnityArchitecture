@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -34,6 +35,7 @@ public class EnemyBase : MonoBehaviour
     public Vector3 TrackedTargetPosition { get; private set; }
 
     private EnemyAttackSelector _attackSelector;
+    private EnemyId _enemyId;
 
     protected virtual void Awake()
     {
@@ -42,25 +44,13 @@ public class EnemyBase : MonoBehaviour
         health = GetComponent<HealthComponent>();
         healthBarUi = GetComponentInChildren<HealthBarUI>(true);
         _attackSelector = new EnemyAttackSelector(this);
+        _enemyId = GetComponent<EnemyId>();
     }
 
     protected virtual void Start()
     {
         StateMachine = new EnemyStateMachine();
-
-        if (target == null)
-        {
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null)
-            {
-                target = player.transform;
-            }
-        }
-
-        if (target != null)
-        {
-            targetDamageable = target.GetComponent<IDamageable>();
-        }
+        ResolveTargetReferences();
 
         if (anim != null && health != null)
         {
@@ -219,6 +209,11 @@ public class EnemyBase : MonoBehaviour
 
     public bool CanDamageTarget(float distance)
     {
+        if (target == null || targetDamageable == null || !targetDamageable.IsAlive)
+        {
+            ResolveTargetReferences();
+        }
+
         return targetDamageable != null &&
             targetDamageable.IsAlive &&
             distance <= GetCombatDistance();
@@ -242,6 +237,124 @@ public class EnemyBase : MonoBehaviour
         {
             targetDamageable.TakeDamage(powerAttackDamage, 0f);
         }
+    }
+
+    public virtual void ApplySpawnStats(float newAttackDamage, float newPowerAttackDamage, float newAttackRange, float newStoppingDistance)
+    {
+        attackDamage = newAttackDamage;
+        powerAttackDamage = newPowerAttackDamage;
+        attackRange = newAttackRange;
+        stoppingDistance = newStoppingDistance;
+
+        if (agent != null)
+        {
+            agent.stoppingDistance = stoppingDistance;
+        }
+    }
+
+    public virtual void ApplyRareState(bool isRare)
+    {
+        RareVisualController rareVisualController = GetComponent<RareVisualController>();
+        rareVisualController?.SetRareState(isRare);
+    }
+
+    public virtual void Construct(IAudioService audioService)
+    {
+        if (health == null)
+        {
+            health = GetComponent<HealthComponent>();
+        }
+
+        health?.Construct(audioService);
+    }
+
+    public virtual EnemySaveData CaptureState()
+    {
+        _enemyId ??= GetComponent<EnemyId>();
+
+        if (health == null)
+        {
+            health = GetComponent<HealthComponent>();
+        }
+
+        if (_enemyId == null || health == null || health.Core == null)
+        {
+            return null;
+        }
+
+        return new EnemySaveData
+        {
+            Id = _enemyId.Id,
+            Position = transform.position,
+            CurrentHp = health.Core.CurrentHealth,
+            IsDead = health.Core.IsDead
+        };
+    }
+
+    public virtual void RestoreState(IReadOnlyList<EnemySaveData> enemyStates)
+    {
+        _enemyId ??= GetComponent<EnemyId>();
+
+        if (health == null)
+        {
+            health = GetComponent<HealthComponent>();
+        }
+
+        if (agent == null)
+        {
+            agent = GetComponent<NavMeshAgent>();
+        }
+
+        if (anim == null)
+        {
+            anim = GetComponent<EnemyAnimationBase>();
+        }
+
+        if (_enemyId == null || health == null || agent == null || anim == null || health.Core == null)
+        {
+            return;
+        }
+
+        EnemySaveData myData = null;
+        foreach (EnemySaveData enemyState in enemyStates)
+        {
+            if (enemyState.Id == _enemyId.Id)
+            {
+                myData = enemyState;
+                break;
+            }
+        }
+
+        if (myData == null)
+        {
+            return;
+        }
+
+        if (myData.IsDead)
+        {
+            health.Core.RestoreHealth(0);
+            gameObject.SetActive(false);
+            return;
+        }
+
+        gameObject.SetActive(true);
+
+        if (healthBarUi != null)
+        {
+            healthBarUi.gameObject.SetActive(true);
+        }
+
+        health.Core.RestoreHealth(myData.CurrentHp);
+
+        agent.enabled = false;
+        transform.position = myData.Position;
+        agent.enabled = true;
+        agent.isStopped = false;
+
+        anim.ResetVisuals();
+        ResetBehaviorState();
+        StateMachine = new EnemyStateMachine();
+        StateMachine.ChangeState(new IdleState(this));
     }
 
     public virtual void FaceTarget()
@@ -279,5 +392,43 @@ public class EnemyBase : MonoBehaviour
         }
 
         TrackedTargetPosition = target.position;
+    }
+
+    private void ResolveTargetReferences()
+    {
+        if (target == null)
+        {
+            target = FindPlayerTarget();
+        }
+
+        if (target != null)
+        {
+            targetDamageable = target.GetComponent<IDamageable>() ??
+                target.GetComponentInParent<IDamageable>();
+        }
+    }
+
+    private static Transform FindPlayerTarget()
+    {
+        PlayerCombat playerCombat = FindFirstObjectByType<PlayerCombat>();
+        if (playerCombat != null)
+        {
+            return playerCombat.transform;
+        }
+
+        PlayerMovement playerMovement = FindFirstObjectByType<PlayerMovement>();
+        if (playerMovement != null)
+        {
+            return playerMovement.transform;
+        }
+
+        GameObject taggedPlayer = GameObject.FindGameObjectWithTag("Player");
+        if (taggedPlayer != null)
+        {
+            return taggedPlayer.transform;
+        }
+
+        HealthComponent playerHealth = FindFirstObjectByType<HealthComponent>();
+        return playerHealth != null ? playerHealth.transform : null;
     }
 }

@@ -17,7 +17,7 @@ MonoBehaviour:
   maxHealth: 100
   attackDamage: 15
   powerAttackDamage: 30
-  attackRange: 2.5
+  attackRange: 6
   stoppingDistance: 2
   isRare: 0
   rareHealthMultiplier: 1.5

@@ -20,7 +20,7 @@ public class BossSpawner : MonoBehaviour
     }
 
     [ContextMenu("Spawn Boss")]
-    public EnemyAgent SpawnBoss()
+    public EnemyBase SpawnBoss()
     {
         if (bossFactories == null || bossFactories.Length == 0)
         {

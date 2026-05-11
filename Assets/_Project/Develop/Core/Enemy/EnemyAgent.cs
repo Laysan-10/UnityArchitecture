@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -26,17 +25,12 @@ public class EnemyAgent : EnemyBase
     private IAudioService _audioService;
     private EnemyId _enemyId;
     private bool _hasRuntimeStatsOverride;
+    private RareVisualController _rareVisualController;
 
-    public void Construct(IAudioService audioService)
+    public override void Construct(IAudioService audioService)
     {
         _audioService = audioService;
-
-        if (health == null)
-        {
-            health = GetComponent<HealthComponent>();
-        }
-
-        health?.Construct(audioService);
+        base.Construct(audioService);
     }
 
     protected override void Awake()
@@ -54,6 +48,7 @@ public class EnemyAgent : EnemyBase
         }
 
         _enemyId = GetComponent<EnemyId>();
+        _rareVisualController = GetComponent<RareVisualController>();
     }
 
     protected override void Start()
@@ -66,18 +61,16 @@ public class EnemyAgent : EnemyBase
         base.Start();
     }
 
-    public void ApplySpawnStats(float newAttackDamage, float newPowerAttackDamage, float newAttackRange, float newStoppingDistance)
+    public override void ApplySpawnStats(float newAttackDamage, float newPowerAttackDamage, float newAttackRange, float newStoppingDistance)
     {
-        attackDamage = newAttackDamage;
-        powerAttackDamage = newPowerAttackDamage;
-        attackRange = newAttackRange;
-        stoppingDistance = newStoppingDistance;
+        base.ApplySpawnStats(newAttackDamage, newPowerAttackDamage, newAttackRange, newStoppingDistance);
         _hasRuntimeStatsOverride = true;
+    }
 
-        if (agent != null)
-        {
-            agent.stoppingDistance = stoppingDistance;
-        }
+    public override void ApplyRareState(bool isRare)
+    {
+        _rareVisualController ??= GetComponent<RareVisualController>();
+        _rareVisualController?.SetRareState(isRare);
     }
 
     public override void PerformAttack()
@@ -88,101 +81,6 @@ public class EnemyAgent : EnemyBase
     public override void PerformPowerAttack()
     {
         ExecuteAttack(powerAttackDamage, true);
-    }
-
-    public EnemySaveData CaptureState()
-    {
-        if (_enemyId == null)
-        {
-            _enemyId = GetComponent<EnemyId>();
-        }
-
-        if (health == null)
-        {
-            health = GetComponent<HealthComponent>();
-        }
-
-        if (_enemyId == null || health == null)
-        {
-            return null;
-        }
-
-        return new EnemySaveData
-        {
-            Id = _enemyId.Id,
-            Position = transform.position,
-            CurrentHp = health.Core.CurrentHealth,
-            IsDead = health.Core.IsDead
-        };
-    }
-
-    public void RestoreState(IReadOnlyList<EnemySaveData> enemyStates)
-    {
-        if (_enemyId == null)
-        {
-            _enemyId = GetComponent<EnemyId>();
-        }
-
-        if (health == null)
-        {
-            health = GetComponent<HealthComponent>();
-        }
-
-        if (agent == null)
-        {
-            agent = GetComponent<NavMeshAgent>();
-        }
-
-        if (anim == null)
-        {
-            anim = GetComponent<EnemyAnimationBase>();
-        }
-
-        if (_enemyId == null || health == null || agent == null || anim == null)
-        {
-            return;
-        }
-
-        EnemySaveData myData = null;
-        foreach (EnemySaveData enemyState in enemyStates)
-        {
-            if (enemyState.Id == _enemyId.Id)
-            {
-                myData = enemyState;
-                break;
-            }
-        }
-
-        if (myData == null)
-        {
-            return;
-        }
-
-        if (myData.IsDead)
-        {
-            health.Core.RestoreHealth(0);
-            gameObject.SetActive(false);
-            return;
-        }
-
-        gameObject.SetActive(true);
-
-        if (healthBarUi != null)
-        {
-            healthBarUi.gameObject.SetActive(true);
-        }
-
-        health.Core.RestoreHealth(myData.CurrentHp);
-
-        agent.enabled = false;
-        transform.position = myData.Position;
-        agent.enabled = true;
-        agent.isStopped = false;
-
-        anim.ResetVisuals();
-        ResetBehaviorState();
-        StateMachine = new EnemyStateMachine();
-        StateMachine.ChangeState(new IdleState(this));
     }
 
     private void ExecuteAttack(float baseDamage, bool isPowerAttack)
