@@ -24,6 +24,11 @@ public class HealthComponent : MonoBehaviour, IDamageable
         Core.ApplyDamage(physicalDamage, magicDamage);
     }
 
+    public void SetMaxHealth(float health, bool restoreToFull = true)
+    {
+        Core.SetMaxHealth(health, restoreToFull);
+    }
+
     public void RestoreHealth(float health)
     {
         Core.RestoreHealth(health);

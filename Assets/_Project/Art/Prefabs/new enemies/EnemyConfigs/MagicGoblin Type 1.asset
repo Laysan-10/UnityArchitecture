@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f55ad2d593195ef4892d7f8e39c23eb8, type: 3}
+  m_Name: MagicGoblin Type 1
+  m_EditorClassIdentifier: Assembly-CSharp::EnemySpawnFactorySO
+  prefab: {fileID: 3844817108800005531, guid: 82bc80aa98a967f44adb8b9fed90de19, type: 3}
+  selectionWeight: 1
+  maxHealth: 100
+  attackDamage: 15
+  powerAttackDamage: 30
+  attackRange: 2.5
+  stoppingDistance: 2
+  isRare: 0
+  rareHealthMultiplier: 1.5
+  rareDamageMultiplier: 1.35

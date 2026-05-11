@@ -25,6 +25,7 @@ public class EnemyAgent : EnemyBase
 
     private IAudioService _audioService;
     private EnemyId _enemyId;
+    private bool _hasRuntimeStatsOverride;
 
     public void Construct(IAudioService audioService)
     {
@@ -57,40 +58,36 @@ public class EnemyAgent : EnemyBase
 
     protected override void Start()
     {
-        attackDamage = damageAmount;
+        if (!_hasRuntimeStatsOverride)
+        {
+            attackDamage = damageAmount;
+        }
+
         base.Start();
+    }
+
+    public void ApplySpawnStats(float newAttackDamage, float newPowerAttackDamage, float newAttackRange, float newStoppingDistance)
+    {
+        attackDamage = newAttackDamage;
+        powerAttackDamage = newPowerAttackDamage;
+        attackRange = newAttackRange;
+        stoppingDistance = newStoppingDistance;
+        _hasRuntimeStatsOverride = true;
+
+        if (agent != null)
+        {
+            agent.stoppingDistance = stoppingDistance;
+        }
     }
 
     public override void PerformAttack()
     {
-        anim?.PlayAttack();
+        ExecuteAttack(attackDamage, false);
+    }
 
-        if (type == EnemyType.Melee)
-        {
-            _audioService?.PlaySound("Enemy_Attack_Melee");
-
-            if (CanDamageTarget(GetFlatDistanceToTarget()))
-            {
-                targetDamageable.TakeDamage(attackDamage, 0f);
-                _audioService?.PlaySound("Player_Hit");
-            }
-
-            return;
-        }
-
-        _audioService?.PlaySound("Enemy_Attack_Ranged");
-        if (magicPrefab == null || firePoint == null || target == null)
-        {
-            return;
-        }
-
-        Vector3 aimDirection = (target.position + Vector3.up) - firePoint.position;
-        GameObject fireball = Object.Instantiate(magicPrefab, firePoint.position, Quaternion.LookRotation(aimDirection));
-
-        if (fireball.TryGetComponent<MagicProjectile>(out var projectile))
-        {
-            projectile.Setup(attackDamage, false);
-        }
+    public override void PerformPowerAttack()
+    {
+        ExecuteAttack(powerAttackDamage, true);
     }
 
     public EnemySaveData CaptureState()
@@ -186,5 +183,54 @@ public class EnemyAgent : EnemyBase
         ResetBehaviorState();
         StateMachine = new EnemyStateMachine();
         StateMachine.ChangeState(new IdleState(this));
+    }
+
+    private void ExecuteAttack(float baseDamage, bool isPowerAttack)
+    {
+        if (isPowerAttack)
+        {
+            anim?.PlayPowerAttack();
+        }
+        else
+        {
+            anim?.PlayAttack();
+        }
+
+        BossElementController bossElement = GetComponent<BossElementController>();
+        float physicalDamage = type == EnemyType.Melee ? baseDamage : 0f;
+        float magicDamage = type == EnemyType.Ranged ? baseDamage : 0f;
+
+        if (type == EnemyType.Melee)
+        {
+            bossElement?.ModifyDamage(isPowerAttack, ref physicalDamage, ref magicDamage);
+        }
+
+        if (type == EnemyType.Melee)
+        {
+            bossElement?.PlayWeaponAttackEffect();
+            _audioService?.PlaySound("Enemy_Attack_Melee");
+
+            if (CanDamageTarget(GetFlatDistanceToTarget()))
+            {
+                targetDamageable.TakeDamage(physicalDamage, magicDamage);
+                _audioService?.PlaySound("Player_Hit");
+            }
+
+            return;
+        }
+
+        _audioService?.PlaySound("Enemy_Attack_Ranged");
+        if (magicPrefab == null || firePoint == null || target == null)
+        {
+            return;
+        }
+
+        Vector3 aimDirection = (target.position + Vector3.up) - firePoint.position;
+        GameObject fireball = Object.Instantiate(magicPrefab, firePoint.position, Quaternion.LookRotation(aimDirection));
+
+        if (fireball.TryGetComponent<MagicProjectile>(out var projectile))
+        {
+            projectile.Setup(physicalDamage, magicDamage, false);
+        }
     }
 }

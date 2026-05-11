@@ -24,6 +24,13 @@ public class HealthCore
         _audioService = audioService;
     }
 
+    public void SetMaxHealth(float maxHealth, bool restoreToFull = true)
+    {
+        MaxHealth = Mathf.Max(1f, maxHealth);
+        CurrentHealth = restoreToFull ? MaxHealth : Mathf.Clamp(CurrentHealth, 0f, MaxHealth);
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+    }
+
     public void ApplyDamage(float physical, float magic)
     {
         if (IsDead) return;
