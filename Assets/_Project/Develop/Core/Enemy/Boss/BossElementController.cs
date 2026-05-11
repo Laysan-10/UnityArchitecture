@@ -28,6 +28,7 @@ public class BossElementController : MonoBehaviour
 
     [Header("Melee Burst")]
     [SerializeField] private int meleeBurstCount = 12;
+    [SerializeField] private int attacksPerElementChange = 2;
     [SerializeField] private float stormMagicRatio = 0.35f;
     [SerializeField] private float frostMagicRatio = 0.25f;
     [SerializeField] private float fireMagicRatio = 0.5f;
@@ -38,6 +39,7 @@ public class BossElementController : MonoBehaviour
     private ParticleSystem _fireGlow;
     private ParticleSystem _lightningGlow;
     private ParticleSystem _activeGlow;
+    private int _attacksSinceLastElementChange;
 
     public BossElementType CurrentElement => currentElement;
 
@@ -50,6 +52,7 @@ public class BossElementController : MonoBehaviour
     public void Initialize(BossElementType element, BossWeaponMode mode)
     {
         currentElement = element;
+        _attacksSinceLastElementChange = 0;
         CacheGlows();
         ApplyVisualState();
     }
@@ -79,6 +82,19 @@ public class BossElementController : MonoBehaviour
         _activeGlow.Emit(meleeBurstCount);
     }
 
+    public void RegisterAttack()
+    {
+        _attacksSinceLastElementChange++;
+
+        if (_attacksSinceLastElementChange < Mathf.Max(1, attacksPerElementChange))
+        {
+            return;
+        }
+
+        _attacksSinceLastElementChange = 0;
+        SwitchToNextRandomElement();
+    }
+
     private void CacheGlows()
     {
         _stormGlow = FindGlow(stormGlowName);
@@ -102,6 +118,24 @@ public class BossElementController : MonoBehaviour
             BossElementType.Lightning => _lightningGlow,
             _ => null
         };
+    }
+
+    private void SwitchToNextRandomElement()
+    {
+        Array values = Enum.GetValues(typeof(BossElementType));
+        if (values.Length <= 1)
+        {
+            return;
+        }
+
+        BossElementType nextElement = currentElement;
+        while (nextElement == currentElement)
+        {
+            nextElement = (BossElementType)values.GetValue(UnityEngine.Random.Range(0, values.Length));
+        }
+
+        currentElement = nextElement;
+        ApplyVisualState();
     }
 
     private ParticleSystem FindGlow(string glowName)

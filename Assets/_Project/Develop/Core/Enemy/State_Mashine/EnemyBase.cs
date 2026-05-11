@@ -225,7 +225,18 @@ public class EnemyBase : MonoBehaviour
 
         if (CanDamageTarget(GetFlatDistanceToTarget()))
         {
-            targetDamageable.TakeDamage(attackDamage, 0f);
+            float physicalDamage = attackDamage;
+            float magicDamage = 0f;
+            BossElementController bossElement = GetComponent<BossElementController>();
+
+            if (isBoss && bossElement != null)
+            {
+                bossElement.ModifyDamage(false, ref physicalDamage, ref magicDamage);
+                bossElement.PlayWeaponAttackEffect();
+                bossElement.RegisterAttack();
+            }
+
+            targetDamageable.TakeDamage(physicalDamage, magicDamage);
         }
     }
 
@@ -235,7 +246,18 @@ public class EnemyBase : MonoBehaviour
 
         if (CanDamageTarget(GetFlatDistanceToTarget()))
         {
-            targetDamageable.TakeDamage(powerAttackDamage, 0f);
+            float physicalDamage = powerAttackDamage;
+            float magicDamage = 0f;
+            BossElementController bossElement = GetComponent<BossElementController>();
+
+            if (isBoss && bossElement != null)
+            {
+                bossElement.ModifyDamage(true, ref physicalDamage, ref magicDamage);
+                bossElement.PlayWeaponAttackEffect();
+                bossElement.RegisterAttack();
+            }
+
+            targetDamageable.TakeDamage(physicalDamage, magicDamage);
         }
     }
 
