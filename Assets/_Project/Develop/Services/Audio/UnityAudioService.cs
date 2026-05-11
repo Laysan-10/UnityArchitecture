@@ -40,12 +40,13 @@ public class UnityAudioService : IAudioService
         if (clip != null) _sfxSource.PlayOneShot(clip, _sfxSource.volume);
     }
 
-    public void PlayMusic(string key)
+    public void PlayMusic(string key, bool loop = true)
     {
         AudioClip clip = Resources.Load<AudioClip>($"Music/{key}");
         if (clip != null)
         {
-            if (_musicSource.clip == clip) return;
+            if (_musicSource.clip == clip && _musicSource.isPlaying && _musicSource.loop == loop) return;
+            _musicSource.loop = loop;
             _musicSource.clip = clip;
             _musicSource.Play();
         }

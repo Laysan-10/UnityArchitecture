@@ -166,7 +166,7 @@ public class LevelProgressController : MonoBehaviour, ISceneBootstrapper
             bossRequirementMet)
         {
             _victoryMusicTriggered = true;
-            _audioService?.PlayMusic(victoryMusicKey);
+            _audioService?.PlayMusic(victoryMusicKey, false);
             ShowVictoryUi();
         }
     }
